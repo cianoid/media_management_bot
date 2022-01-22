@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import (CallbackContext, CommandHandler, Updater,
                           MessageHandler, Filters)
 
-
+import text
 
 load_dotenv()
 
@@ -40,10 +40,6 @@ file_handler.setFormatter(formatter)
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 ADMIN_TELEGRAM_CHAT_ID = int(os.getenv('ADMIN_TELEGRAM_CHAT_ID'))
 
-LOG_CRITICAL_ENV_CHECK_FAILED = ('Отсутствует обязательная переменная '
-                                 '"{parameter}". Бот остановлен')
-LOG_DEBUG_ENV_CHECK = 'Проверка env-переменных для подключения'
-LOG_INFO_LAUNCH = 'Бот запущен!'
 
 
 class EnvironmentParameterError(Exception):
@@ -52,7 +48,7 @@ class EnvironmentParameterError(Exception):
 
 def environment_check():
     try:
-        logger.debug(LOG_DEBUG_ENV_CHECK)
+        logger.debug(text.LOG_DEBUG_ENV_CHECK)
 
         if TELEGRAM_TOKEN is None:
             raise EnvironmentParameterError('TELEGRAM_TOKEN')
@@ -60,7 +56,7 @@ def environment_check():
             raise EnvironmentParameterError('ADMIN_TELEGRAM_CHAT_ID')
     except EnvironmentParameterError as parameter:
         logger.critical(
-            LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
+            text.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
         raise SystemExit
 
 
@@ -77,7 +73,7 @@ def unknown(update: Update, context: CallbackContext):
 
 
 def main():
-    logger.info(LOG_INFO_LAUNCH)
+    logger.info(text.LOG_INFO_LAUNCH)
 
     environment_check()
 
