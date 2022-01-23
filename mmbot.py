@@ -7,7 +7,7 @@ from functools import wraps
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import (CallbackContext, CommandHandler, Updater,
-                          MessageHandler, Filters)
+                          MessageHandler, Filters, ConversationHandler)
 
 import text
 
@@ -42,17 +42,20 @@ file_handler.setFormatter(formatter)
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 ADMIN_TELEGRAM_CHAT_ID = int(os.getenv('ADMIN_TELEGRAM_CHAT_ID'))
 
-MODERATORS_DATA = [{
-    'id': 2097686630,
-    'username': '@Cianodi2',
-    'first_name': 'first',
-    'last_name': 'last'
-}, {
-    'id': 209326081,
-    'username': '@Cianoid',
-    'first_name': 'Cianoid',
-    'last_name': ''
-}]
+MODERATORS_DATA = [
+    # {
+    # 'id': 2097686630,
+    # 'username': '@Cianodi2',
+    # 'first_name': 'first',
+    # 'last_name': 'last'
+# }
+    # {
+    # 'id': 209326081,
+    # 'username': '@Cianoid',
+    # 'first_name': 'Cianoid',
+    # 'last_name': ''
+# }
+]
 
 
 class Moderator:
@@ -208,12 +211,18 @@ def user_start_message(update):
         if ua_level >= cmd['user_access']
     ]
 
-    ua_level_access_label = [
-                                cmd['user_access']
-                                for cmd in filered_commands].__len__() > 1
+    ua_level_list = []
+    for cmd in filered_commands:
+        if cmd['user_access'] not in ua_level_list:
+            ua_level_list.append(cmd['user_access'])
+
+    ua_level_access_label = ua_level_list.__len__() > 1
 
     message_text = ''
     old_ua_level = 0
+
+    if not ua_level_access_label:
+        message_text += '\n*Доступные команды*:\n'
 
     for cmd in filered_commands:
         if cmd['user_access'] != old_ua_level and ua_level_access_label:
@@ -228,8 +237,35 @@ def user_start_message(update):
     return message_text
 
 
-def handler_propose(update: Update, context: CallbackContext):
-    pass
+def propose_start(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        'Пришлите текст, фото или файл, которые хотите отправить на '
+        'рассмотрение или введите команду /cancel для отмены')
+
+    return PROPOSE
+
+
+def propose_cancel(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        'ОК! Если что-то захотите прислать, просто введите команду '
+        '/propose снова')
+    return ConversationHandler.END
+
+
+def propose_photo(update: Update, context: CallbackContext):
+    update.message.reply_text('Спасибо! Взяли это фото на рассмотрение')
+    return ConversationHandler.END
+
+
+def propose_document(update: Update, context: CallbackContext):
+    context.bot.get_file(update.message.document).download()
+    update.message.reply_text('Спасибо! Взяли этот файл на рассмотрение')
+    return ConversationHandler.END
+
+
+def propose_text(update: Update, context: CallbackContext):
+    update.message.reply_text('Спасибо! Взяли этот текст на рассмотрение')
+    return ConversationHandler.END
 
 
 @is_moderator_decorator
@@ -270,6 +306,9 @@ def unknown(update: Update, context: CallbackContext):
         text="Sorry, I didn't understand that command.")
 
 
+PROPOSE = range(1)
+
+
 def main():
     logger.info(text.LOG_INFO_LAUNCH)
 
@@ -288,6 +327,19 @@ def main():
             CommandHandler(
                 handler_name.replace('handler_', ''),
                 globals()[handler_name]))
+
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('propose', propose_start)],
+        states={
+            PROPOSE: [
+                MessageHandler(Filters.photo, propose_photo),
+                MessageHandler(Filters.document, propose_document),
+                MessageHandler(Filters.text & ~Filters.command, propose_text),
+                CommandHandler('cancel', propose_cancel)],
+        },
+        fallbacks=[CommandHandler('cancel', propose_cancel)],
+    )
+    dispatcher.add_handler(conv_handler)
 
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
