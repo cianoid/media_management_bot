@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import logging
 from logging import StreamHandler, FileHandler
 import os
+from functools import wraps
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.exceptions import BotBlocked
@@ -93,6 +94,7 @@ MODERATORS = {
     moderator['id']: Moderator(moderator) for moderator in MODERATORS_DATA
 }
 
+
 def environment_check():
     try:
         logger.debug(text.LOG_DEBUG_ENV_CHECK)
@@ -174,6 +176,33 @@ def is_moderator(chat_id):
     return chat_id in MODERATORS.keys()
 
 
+def is_moderator_decorator(func):
+    @wraps(func)
+    def wrapper(message: types.Message, *args, **kwargs):
+        chat_id = message.chat.id
+        if is_moderator(chat_id) or is_admin(chat_id):
+            return func(message, *args, **kwargs)
+
+        message.reply('У вас недостаточно прав для этой операции')
+
+        return False
+
+    return wrapper
+
+
+def is_admin_decorator(func):
+    @wraps(func)
+    def wrapper(message: types.Message, *args, **kwargs):
+        if is_admin(message.chat.id):
+            return func(message, *args, **kwargs)
+
+        message.reply('У вас недостаточно прав для этой операции')
+
+        return False
+
+    return wrapper
+
+
 def user_start_message(chat_id):
     ua_level = UA_USER
 
@@ -214,10 +243,72 @@ def user_start_message(chat_id):
     return message_text
 
 
-@dp.message_handler(commands='start')
+@dp.message_handler(commands=['start', 'help'])
 async def cmd_start(message: types.Message):
     start_message = user_start_message(message.chat.id)
     await message.reply(start_message)
+
+
+async def send_proposal_to_moderator():
+    # chat = Chat(id=MODERATORS_DATA[0]['id'], type='private')
+    # chat.send_message('hello')
+    pass
+
+
+@dp.message_handler(commands='propose')
+async def propose_start(message: types.Message):
+    await message.reply(
+        'Пришлите текст, фото или файл, которые хотите отправить на '
+        'рассмотрение или введите команду /cancel для отмены')
+
+
+@dp.message_handler(commands='cancel')
+async def propose_cancel(message: types.Message):
+    await message.reply(
+        'ОК! Если что-то захотите прислать, просто введите команду '
+        '/propose снова')
+
+
+@dp.message_handler(content_types=[types.ContentType.PHOTO])
+async def propose_photo(message: types.Message):
+    await message.reply('Спасибо! Взяли это фото на рассмотрение')
+
+
+@dp.message_handler(content_types=[types.ContentType.DOCUMENT])
+async def propose_document(message: types.Message):
+    # context.bot.get_file(update.message.document).download()
+    await message.reply('Спасибо! Взяли этот файл на рассмотрение')
+
+
+@dp.message_handler(content_types=[types.ContentType.TEXT])
+async def propose_text(message: types.Message):
+    await message.reply('Спасибо! Взяли этот текст на рассмотрение')
+
+
+@is_moderator_decorator
+@dp.message_handler(commands='approve')
+async def handler_approve(message: types.Message):
+    await message.reply('Спасибо! Approved')
+
+
+# @is_moderator_decorator
+# async def handler_decline(message: types.Message):
+#     pass
+
+
+# @is_admin_decorator
+# async def handler_moderator_add(message: types.Message):
+#     pass
+
+
+# @is_admin_decorator
+# async def handler_moderator_list(message: types.Message):
+#     pass
+
+
+# @is_admin_decorator
+# async def handler_moderator_delete(message: types.Message):
+#     pass
 
 
 @dp.errors_handler(exception=BotBlocked)
