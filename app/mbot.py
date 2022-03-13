@@ -18,7 +18,11 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 ADMINS = [
     int(chat_id)
     for chat_id
-    in re.split(' +', os.getenv('ADMIN_TELEGRAM_CHAT_IDS', default='0'))]
+    in re.split(' +', os.getenv('ADMIN_IDS', default='0'))]
+MODERATORS = [
+    int(chat_id)
+    for chat_id
+    in re.split(' +', os.getenv('MODERATOR_IDS', default='0'))]
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +57,9 @@ def environment_check():
         if TELEGRAM_TOKEN is None:
             raise EnvironmentParameterError('TELEGRAM_TOKEN')
         if ADMINS is None:
-            raise EnvironmentParameterError('ADMIN_TELEGRAM_CHAT_IDS')
+            raise EnvironmentParameterError('ADMIN_IDS')
+        if MODERATORS is None:
+            raise EnvironmentParameterError('MODERATOR_IDS')
     except EnvironmentParameterError as parameter:
         logger.critical(
             text.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
@@ -67,8 +73,9 @@ async def main():
 
     bot = Bot(token=TELEGRAM_TOKEN, parse_mode=types.ParseMode.HTML)
     dp = Dispatcher(bot, storage=MemoryStorage())
+
     register_handlers_common(dp)
-    register_handlers_admin(dp, ADMINS)
+    register_handlers_admin(dp, ADMINS, MODERATORS)
 
     await dp.start_polling()
 

@@ -5,8 +5,12 @@
 
 #### .env
 
+Для формирования списка из переменных *ADMIN_IDS* и *MODERATOR_IDS*, 
+параметры указывать через пробел 
+
 ```
 TELEGRAM_TOKEN=
-ADMIN_TELEGRAM_CHAT_IDS=
-LOG_LEVEL=DEBUG
+ADMIN_IDS=
+MODERATOR_IDS=
+LOG_LEVEL=INFO
 ```
