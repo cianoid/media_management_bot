@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 import text
 from exceptions import EnvironmentParameterError
+from handlers.admin import register_handlers_admin
 from handlers.common import register_handlers_common
 
 load_dotenv()
@@ -67,6 +68,7 @@ async def main():
     bot = Bot(token=TELEGRAM_TOKEN, parse_mode=types.ParseMode.HTML)
     dp = Dispatcher(bot, storage=MemoryStorage())
     register_handlers_common(dp)
+    register_handlers_admin(dp, ADMINS)
 
     await dp.start_polling()
 
