@@ -1,0 +1,3 @@
+class EnvironmentParameterError(Exception):
+    pass
+
