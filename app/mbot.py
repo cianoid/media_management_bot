@@ -1,19 +1,15 @@
 import asyncio
-
-from dotenv import load_dotenv
 import logging
-from logging import StreamHandler, FileHandler
 import os
 import re
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-
-from exceptions import EnvironmentParameterError
-
-from handlers.common import register_handlers_common
+from dotenv import load_dotenv
 
 import text
+from exceptions import EnvironmentParameterError
+from handlers.common import register_handlers_common
 
 load_dotenv()
 
@@ -24,20 +20,6 @@ ADMINS = [
     in re.split(' +', os.getenv('ADMIN_TELEGRAM_CHAT_IDS', default='0'))]
 
 logger = logging.getLogger(__name__)
-
-
-def environment_check():
-    try:
-        logger.debug(text.LOG_DEBUG_ENV_CHECK)
-
-        if TELEGRAM_TOKEN is None:
-            raise EnvironmentParameterError('TELEGRAM_TOKEN')
-        if ADMINS is None:
-            raise EnvironmentParameterError('ADMIN_TELEGRAM_CHAT_IDS')
-    except EnvironmentParameterError as parameter:
-        logger.critical(
-            text.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
-        raise SystemExit
 
 
 def log_init():
@@ -52,8 +34,8 @@ def log_init():
 
     formatter = logging.Formatter(
         '%(asctime)s %(name)s [%(levelname)s] %(message)s')
-    stream_handler = StreamHandler()
-    file_handler = FileHandler(file_path, 'a+')
+    stream_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler(file_path, 'a+')
 
     logger.setLevel(level)
     logger.addHandler(stream_handler)
@@ -61,6 +43,20 @@ def log_init():
     stream_handler.setFormatter(formatter)
     file_handler.setFormatter(formatter)
     logging.basicConfig(level=log_level)
+
+
+def environment_check():
+    try:
+        logger.debug(text.LOG_DEBUG_ENV_CHECK)
+
+        if TELEGRAM_TOKEN is None:
+            raise EnvironmentParameterError('TELEGRAM_TOKEN')
+        if ADMINS is None:
+            raise EnvironmentParameterError('ADMIN_TELEGRAM_CHAT_IDS')
+    except EnvironmentParameterError as parameter:
+        logger.critical(
+            text.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
+        raise SystemExit
 
 
 async def main():
