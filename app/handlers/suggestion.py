@@ -2,16 +2,9 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-import app.textlib as _
-from app.dynamic_data.users import Moderator
-
-moderators = Moderator()
-
-ALLOWED_TYPES = {
-    types.ContentType.TEXT: _.TEXT_HELP_TEXT,
-    types.ContentType.PHOTO: _.TEXT_HELP_PHOTO,
-    types.ContentType.DOCUMENT: _.TEXT_HELP_DOCUMENT,
-}
+import app.core.textlib as _
+from app.core.models import User
+from app.core.constants import ALLOWED_TYPES
 
 
 class SendSuggestion(StatesGroup):

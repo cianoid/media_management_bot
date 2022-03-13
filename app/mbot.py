@@ -7,8 +7,8 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
-import app.textlib as _
-from exceptions import EnvironmentParameterError
+import app.core.textlib as _
+from app.core.exceptions import EnvironmentParameterError
 from handlers.admin import register_handlers_admin
 from handlers.common import register_handlers_common
 from handlers.suggestion import (register_callbacks_suggestion,
