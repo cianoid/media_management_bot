@@ -11,7 +11,8 @@ import app.textlib as _
 from exceptions import EnvironmentParameterError
 from handlers.admin import register_handlers_admin
 from handlers.common import register_handlers_common
-from handlers.suggestion import register_handlers_suggestion
+from handlers.suggestion import (register_callbacks_suggestion,
+                                 register_handlers_suggestion)
 
 load_dotenv()
 
@@ -20,11 +21,6 @@ ADMINS = [
     int(chat_id)
     for chat_id
     in re.split(' +', os.getenv('ADMIN_IDS', default='0'))]
-# @TODO it's just for MVP
-MODERATORS = [
-    int(chat_id)
-    for chat_id
-    in re.split(' +', os.getenv('MODERATOR_IDS', default='0'))]
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +56,6 @@ def environment_check():
             raise EnvironmentParameterError('TELEGRAM_TOKEN')
         if ADMINS is None:
             raise EnvironmentParameterError('ADMIN_IDS')
-        if MODERATORS is None:
-            raise EnvironmentParameterError('MODERATOR_IDS')
     except EnvironmentParameterError as parameter:
         logger.critical(
             _.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
@@ -78,7 +72,8 @@ async def main():
 
     register_handlers_common(dp)
     register_handlers_suggestion(dp)
-    register_handlers_admin(dp, ADMINS, MODERATORS)
+    register_handlers_admin(dp, ADMINS)
+    register_callbacks_suggestion(dp)
 
     await dp.start_polling()
 
