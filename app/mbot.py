@@ -7,10 +7,11 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
-import text
+import app.textlib as _
 from exceptions import EnvironmentParameterError
 from handlers.admin import register_handlers_admin
 from handlers.common import register_handlers_common
+from handlers.suggestion import register_handlers_suggestion
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ ADMINS = [
     int(chat_id)
     for chat_id
     in re.split(' +', os.getenv('ADMIN_IDS', default='0'))]
+# @TODO it's just for MVP
 MODERATORS = [
     int(chat_id)
     for chat_id
@@ -52,7 +54,7 @@ def log_init():
 
 def environment_check():
     try:
-        logger.debug(text.LOG_DEBUG_ENV_CHECK)
+        logger.debug(_.LOG_DEBUG_ENV_CHECK)
 
         if TELEGRAM_TOKEN is None:
             raise EnvironmentParameterError('TELEGRAM_TOKEN')
@@ -62,7 +64,7 @@ def environment_check():
             raise EnvironmentParameterError('MODERATOR_IDS')
     except EnvironmentParameterError as parameter:
         logger.critical(
-            text.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
+            _.LOG_CRITICAL_ENV_CHECK_FAILED.format(parameter=parameter))
         raise SystemExit
 
 
@@ -75,6 +77,7 @@ async def main():
     dp = Dispatcher(bot, storage=MemoryStorage())
 
     register_handlers_common(dp)
+    register_handlers_suggestion(dp)
     register_handlers_admin(dp, ADMINS, MODERATORS)
 
     await dp.start_polling()
