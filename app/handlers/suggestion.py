@@ -4,9 +4,10 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import app.core.textlib as _
 from app.core.constants import ALLOWED_TYPES
-from app.core.models import DBUser
+from app.core.models import DBUser, DBSuggestion
 
 User = DBUser()
+Suggestion = DBSuggestion()
 
 
 class SendSuggestion(StatesGroup):
@@ -20,6 +21,9 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
 
 
 async def suggestion_start(message: types.Message):
+    tg_user_id = message.from_user.id
+    User.get_or_create(tg_user_id=tg_user_id)
+
     await message.reply(_.MSG_SUGGEST_START)
     await SendSuggestion.waiting_for_data.set()
 
@@ -29,10 +33,37 @@ async def suggestion_data(message: types.Message, state: FSMContext):
         await message.reply(_.MSG_SUGGEST_START)
         return
 
+    tg_user = message.from_user
+    content_type = message.content_type
     content_type_name = ALLOWED_TYPES[message.content_type]
+
+    content = {}
+
+    if content_type == types.ContentType.TEXT:
+        content = {'text': message.text}
+    elif content_type == types.ContentType.DOCUMENT:
+        content = {
+            'file_id': message.document['file_id'],
+            'file_unique_id': message.document['file_unique_id'],
+            'file_size': message.document['file_size'],
+            'file_name': message.document['file_name'],
+            'mime_type': message.document['mime_type'],
+        }
+    elif content_type == types.ContentType.PHOTO:
+        content = {
+            'file_id': message.photo[-1].file_id,
+            'file_unique_id': message.photo[-1].file_unique_id,
+            'file_size': message.photo[-1].file_size,
+            'caption': message.caption
+        }
+
+    Suggestion.create(
+        tg_user_id=tg_user.id, content_type=content_type, content=content)
+
     await message.reply(_.MSG_SUGGEST_END.format(content_type_name))
     await send_data_to_moderators(message)
     await state.finish()
+    # как мдератор найдет путь в записи в БД?
 
 
 async def send_data_to_moderators(message: types.Message):
@@ -40,7 +71,8 @@ async def send_data_to_moderators(message: types.Message):
     text_before = 'Пользователь {} (user_id={}) предложил {}'.format(
         tg_user.username, tg_user.id, ALLOWED_TYPES[message.content_type])
 
-    for chat_id in User.get_moderator_ids():
+    for chat_id in [209326081]:
+    # for chat_id in User.get_moderator_ids():
         await message.bot.send_message(chat_id, text_before)
 
         buttons = [
@@ -55,6 +87,7 @@ async def send_data_to_moderators(message: types.Message):
 
 
 async def suggestion_approve(call: types.CallbackQuery):
+    print(call.message)
     await remove_reply_markup(call.bot, call.message)
     await call.message.answer(
         'Модератор Вася уже <b>принял</b> это предложение')
