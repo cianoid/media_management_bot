@@ -1,6 +1,7 @@
-from sqlalchemy import (BigInteger, Boolean, Column, create_engine, DateTime, ForeignKey,
-                        Integer, String, SmallInteger)
-from sqlalchemy.orm import declarative_base, relationship, validates
+from sqlalchemy import (BigInteger, Boolean, Column, DateTime, ForeignKey,
+                        Integer, SmallInteger, String, create_engine, future,
+                        select)
+from sqlalchemy.orm import Session, declarative_base, relationship, validates
 from sqlalchemy.sql import func
 
 from app.core.constants import ALLOWED_TYPES
@@ -11,18 +12,14 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True)
-    chat_id = Column(BigInteger)
+    tg_user_id = Column(BigInteger, unique=True, primary_key=True)
     registration_date = Column(
         DateTime(timezone=True), server_default=func.now())
     is_moderator = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
 
-    suggestions = relationship(
-        'Suggestion', back_populates='user')
-
     def __repr__(self):
-        return f'User(id={self.id!r}, name={self.chat_id!r})'
+        return f'User(id={self.id!r}, name={self.tg_user_id!r})'
 
 
 class Suggestion(Base):
@@ -36,17 +33,19 @@ class Suggestion(Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(
-        Integer, ForeignKey(f'{User.__tablename__}.id'), nullable=True)
+    tg_user_id = Column(
+        Integer, ForeignKey(f'{User.__tablename__}.tg_user_id'), nullable=True)
     content_type = Column(String)
     content = Column(String)
     suggestion_date = Column(
         DateTime(timezone=True), server_default=func.now())
-
     status = Column(SmallInteger, default=STATUS_NEW)
     moderation_date = Column(DateTime(timezone=True))
     moderator_id = Column(
-        Integer, ForeignKey(f'{User.__tablename__}.id'), nullable=True)
+        Integer, ForeignKey(f'{User.__tablename__}.tg_user_id'), nullable=True)
+
+    user = relationship('User', foreign_keys=[tg_user_id])
+    moderator = relationship('User', foreign_keys=[moderator_id])
 
     @validates('content_type')
     def validate_content_type(self, key, value):
@@ -60,6 +59,50 @@ class Suggestion(Base):
                 '{} not in list {}'.format(key, self.STATUS_CHOICES))
 
 
-def db_init():
-    engine = create_engine("sqlite:///db.db", echo=True, future=True)
-    Base.metadata.create_all(engine)
+class __DBLayer:
+    engine: future.Engine
+
+    def __init__(self):
+        self.engine = create_engine("sqlite:///db.db", echo=False, future=True)
+        Base.metadata.create_all(self.engine)
+
+
+class DBUser(__DBLayer):
+    def get_or_create(self, tg_user_id):
+        obj = self.get(tg_user_id=tg_user_id)
+
+        if obj:
+            return obj
+
+        self.create(tg_user_id=tg_user_id)
+        return self.get(tg_user_id=tg_user_id)
+
+    def get(self, tg_user_id):
+        stmt = select(User).where(User.tg_user_id == tg_user_id)
+
+        with Session(self.engine) as session:
+            return session.scalar(stmt)
+
+    def create(self, tg_user_id):
+        with Session(self.engine) as session:
+            session.add(User(tg_user_id=tg_user_id))
+            session.commit()
+
+    def get_user_id(self, tg_user_id):
+        obj = self.get(tg_user_id=tg_user_id)
+
+        if not obj:
+            return None
+
+        return obj.id
+
+    def get_moderator_ids(self):
+        stmt = select(User).where(
+            User.is_moderator.is_(True), User.is_active.is_(True))
+
+        with Session(self.engine) as session:
+            return [user.tg_user_id for user in session.scalars(stmt)]
+
+
+class DBSuggestion(__DBLayer):
+    pass
