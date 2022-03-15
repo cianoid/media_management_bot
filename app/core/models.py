@@ -1,4 +1,4 @@
-from sqlalchemy import (BigInteger, Boolean, Column, DateTime, ForeignKey,
+from sqlalchemy import (BigInteger, Boolean, Column, create_engine, DateTime, ForeignKey,
                         Integer, String, SmallInteger)
 from sqlalchemy.orm import declarative_base, relationship, validates
 from sqlalchemy.sql import func
@@ -58,3 +58,8 @@ class Suggestion(Base):
         if value not in self.STATUS_CHOICES:
             raise ValueError(
                 '{} not in list {}'.format(key, self.STATUS_CHOICES))
+
+
+def db_init():
+    engine = create_engine("sqlite:///db.db", echo=True, future=True)
+    Base.metadata.create_all(engine)

@@ -8,6 +8,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
 import app.core.textlib as _
+from app.core.models import db_init
 from app.core.exceptions import EnvironmentParameterError
 from handlers.admin import register_handlers_admin
 from handlers.common import register_handlers_common
@@ -66,6 +67,7 @@ async def main():
     load_dotenv()
     log_init()
     environment_check()
+    db_init()
 
     bot = Bot(token=TELEGRAM_TOKEN, parse_mode=types.ParseMode.HTML)
     dp = Dispatcher(bot, storage=MemoryStorage())
