@@ -16,7 +16,7 @@ class User(Base):
     registration_date = Column(
         DateTime(timezone=True), server_default=func.now())
     is_moderator = Column(Boolean, default=False)
-    is_active = Column(Base, default=True)
+    is_active = Column(Boolean, default=True)
 
     suggestions = relationship(
         'Suggestion', back_populates='user')
