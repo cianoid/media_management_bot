@@ -3,17 +3,14 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import app.core.textlib as _
-from app.core.models import User
 from app.core.constants import ALLOWED_TYPES
+from app.core.models import DBUser
+
+User = DBUser()
 
 
 class SendSuggestion(StatesGroup):
     waiting_for_data = State()
-
-
-async def suggestion_start(message: types.Message):
-    await message.reply(_.MSG_SUGGEST_START)
-    await SendSuggestion.waiting_for_data.set()
 
 
 async def remove_reply_markup(bot: Bot, message: types.Message):
@@ -22,25 +19,28 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
         reply_markup=None)
 
 
-async def suggestion_approve(call: types.CallbackQuery):
-    await remove_reply_markup(call.bot, call.message)
-    await call.message.answer(
-        'Модератор Вася уже <b>принял</b> это предложение')
+async def suggestion_start(message: types.Message):
+    await message.reply(_.MSG_SUGGEST_START)
+    await SendSuggestion.waiting_for_data.set()
 
 
-async def suggestion_reject(call: types.CallbackQuery):
-    await remove_reply_markup(call.bot, call.message)
-    await call.message.answer('Вы <b>отклонили</b> предложение')
+async def suggestion_data(message: types.Message, state: FSMContext):
+    if message.content_type not in ALLOWED_TYPES.keys():
+        await message.reply(_.MSG_SUGGEST_START)
+        return
 
-    await call.answer('Спасибо за решение! Мы сообщим пользователю результат')
+    content_type_name = ALLOWED_TYPES[message.content_type]
+    await message.reply(_.MSG_SUGGEST_END.format(content_type_name))
+    await send_data_to_moderators(message)
+    await state.finish()
 
 
 async def send_data_to_moderators(message: types.Message):
-    user = message.from_user
+    tg_user = message.from_user
     text_before = 'Пользователь {} (user_id={}) предложил {}'.format(
-        user.username, user.id, ALLOWED_TYPES[message.content_type])
+        tg_user.username, tg_user.id, ALLOWED_TYPES[message.content_type])
 
-    for chat_id in moderators.get_chat_ids():
+    for chat_id in User.get_moderator_ids():
         await message.bot.send_message(chat_id, text_before)
 
         buttons = [
@@ -54,15 +54,17 @@ async def send_data_to_moderators(message: types.Message):
         await message.send_copy(chat_id, reply_markup=keyboard)
 
 
-async def suggestion_data(message: types.Message, state: FSMContext):
-    if message.content_type not in ALLOWED_TYPES.keys():
-        await message.reply(_.MSG_SUGGEST_START)
-        return
+async def suggestion_approve(call: types.CallbackQuery):
+    await remove_reply_markup(call.bot, call.message)
+    await call.message.answer(
+        'Модератор Вася уже <b>принял</b> это предложение')
 
-    content_type_name = ALLOWED_TYPES[message.content_type]
-    await message.reply(_.MSG_SUGGEST_END.format(content_type_name))
-    await send_data_to_moderators(message)
-    await state.finish()
+
+async def suggestion_reject(call: types.CallbackQuery):
+    await remove_reply_markup(call.bot, call.message)
+    await call.message.answer('Вы <b>отклонили</b> предложение')
+
+    await call.answer('Спасибо за решение! Мы сообщим пользователю результат')
 
 
 def register_handlers_suggestion(dp: Dispatcher):

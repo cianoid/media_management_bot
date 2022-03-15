@@ -2,8 +2,12 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
+from app.core.models import DBUser
 
-def user_start_message(chat_id):
+User = DBUser()
+
+
+def user_start_message(user_id):
     return 'Привет!'
 
 
@@ -15,7 +19,10 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
 
 
 async def cmd_start(message: types.Message):
-    start_message = user_start_message(message.chat.id)
+    tg_user_id = message.from_user.id
+    start_message = user_start_message(tg_user_id)
+
+    User.get_or_create(tg_user_id=tg_user_id)
     await message.reply(start_message)
 
 
