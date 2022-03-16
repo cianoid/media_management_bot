@@ -51,7 +51,7 @@ class Suggestion(Base):
     content_caption = Column(String, nullable=True)
 
     suggestion_date = Column(
-        DateTime(timezone=True), server_default=datetime.utcnow())
+        DateTime(timezone=True), server_default=func.now())
     status = Column(SmallInteger, default=STATUS_NEW)
     moderation_date = Column(DateTime(timezone=True))
     tg_moderator_id = Column(
