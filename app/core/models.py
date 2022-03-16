@@ -51,11 +51,18 @@ class Suggestion(Base):
     STATUS_CHOICES = (STATUS_NEW, STATUS_APPROVED, STATUS_REJECTED)
 
     id = Column(Integer, primary_key=True)
-
     tg_user_id = Column(
         Integer, ForeignKey(f'{User.__tablename__}.tg_user_id'), nullable=True)
-    content_type = Column(String)
-    content = Column(DictType)
+
+    content_type = Column(String, nullable=False)
+    content_text = Column(String, nullable=True)
+    content_file_id = Column(String, nullable=True)
+    content_file_unique_id = Column(String, nullable=True)
+    content_file_size = Column(BigInteger, nullable=True)
+    content_file_name = Column(String, nullable=True)
+    content_mime_type = Column(String, nullable=True)
+    content_caption = Column(String, nullable=True)
+
     suggestion_date = Column(
         DateTime(timezone=True), server_default=func.now())
     status = Column(SmallInteger, default=STATUS_NEW)
@@ -124,10 +131,8 @@ class DBUser(__DBLayer):
 
 
 class DBSuggestion(__DBLayer):
-    def create(self, tg_user_id, content_type, content):
+    def create(self, tg_user_id, **kwargs):
         with Session(self.engine) as session:
-            session.add(Suggestion(
-                tg_user_id=tg_user_id, content_type=content_type,
-                content=content))
+            session.add(Suggestion(tg_user_id=tg_user_id, **kwargs))
             session.commit()
 

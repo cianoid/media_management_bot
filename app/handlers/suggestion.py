@@ -40,30 +40,31 @@ async def suggestion_data(message: types.Message, state: FSMContext):
     content = {}
 
     if content_type == types.ContentType.TEXT:
-        content = {'text': message.text}
+        content = {'content_text': message.text}
     elif content_type == types.ContentType.DOCUMENT:
         content = {
-            'file_id': message.document['file_id'],
-            'file_unique_id': message.document['file_unique_id'],
-            'file_size': message.document['file_size'],
-            'file_name': message.document['file_name'],
-            'mime_type': message.document['mime_type'],
+            'content_file_id': message.document['file_id'],
+            'content_file_unique_id': message.document['file_unique_id'],
+            'content_file_size': message.document['file_size'],
+            'content_file_name': message.document['file_name'],
+            'content_mime_type': message.document['mime_type'],
+            'content_caption': message.caption
         }
     elif content_type == types.ContentType.PHOTO:
         content = {
-            'file_id': message.photo[-1].file_id,
-            'file_unique_id': message.photo[-1].file_unique_id,
-            'file_size': message.photo[-1].file_size,
-            'caption': message.caption
+            'content_file_id': message.photo[-1].file_id,
+            'content_file_unique_id': message.photo[-1].file_unique_id,
+            'content_file_size': message.photo[-1].file_size,
+            'content_caption': message.caption
         }
 
-    Suggestion.create(
-        tg_user_id=tg_user.id, content_type=content_type, content=content)
+    content.update({'content_type': content_type})
+
+    Suggestion.create(tg_user_id=tg_user.id, **content)
 
     await message.reply(_.MSG_SUGGEST_END.format(content_type_name))
     await send_data_to_moderators(message)
     await state.finish()
-    # как мдератор найдет путь в записи в БД?
 
 
 async def send_data_to_moderators(message: types.Message):
