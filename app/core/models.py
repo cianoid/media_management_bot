@@ -1,4 +1,4 @@
-import json
+from datetime import datetime
 
 from sqlalchemy import (BigInteger, Boolean, Column, DateTime, ForeignKey,
                         Integer, SmallInteger, String, create_engine, future,
@@ -51,7 +51,7 @@ class Suggestion(Base):
     content_caption = Column(String, nullable=True)
 
     suggestion_date = Column(
-        DateTime(timezone=True), server_default=func.now())
+        DateTime(timezone=True), server_default=datetime.utcnow())
     status = Column(SmallInteger, default=STATUS_NEW)
     moderation_date = Column(DateTime(timezone=True))
     tg_moderator_id = Column(
@@ -59,7 +59,8 @@ class Suggestion(Base):
         ForeignKey(f'{User.__tablename__}.tg_user_id'), nullable=True)
 
     user = relationship('User', foreign_keys=[tg_user_id], lazy='joined')
-    moderator = relationship('User', foreign_keys=[tg_moderator_id], lazy='joined')
+    moderator = relationship(
+        'User', foreign_keys=[tg_moderator_id], lazy='joined')
 
     # @validates('content_type')
     # def validate_content_type(self, key, value):
