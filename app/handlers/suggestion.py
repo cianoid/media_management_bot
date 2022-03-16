@@ -9,6 +9,9 @@ import app.core.textlib as _
 from app.core.constants import ALLOWED_TYPES
 from app.core.models import DBUser, DBSuggestion, Suggestion
 
+ACTION_APPROVE = 1
+ACTION_REJECT = 2
+
 
 class SendSuggestion(StatesGroup):
     waiting_for_data = State()
@@ -73,13 +76,13 @@ async def suggestion_data(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-cb_suggestion_approve = CallbackData('suggestion', 'suggestion_id')
-cb_suggestion_reject = CallbackData('suggestion', 'suggestion_id')
+cb_suggestion_approve = CallbackData('suggestion', 'action', 'suggestion_id')
+cb_suggestion_reject = CallbackData('suggestion', 'action', 'suggestion_id')
 
 
 async def send_data_to_moderators(message: types.Message, suggestion_id):
     tg_user = message.from_user
-    text_before = 'Пользователь @{} (user_id={}) предложил {}'.format(
+    text_before = _.MSG_USER_SUGGEST.format(
         tg_user.username, tg_user.id, ALLOWED_TYPES[message.content_type])
 
     for chat_id in [2097686630]:
@@ -88,13 +91,13 @@ async def send_data_to_moderators(message: types.Message, suggestion_id):
 
         buttons = [
             types.InlineKeyboardButton(
-                text='Принять',
+                text=_.BTN_APPROVE,
                 callback_data=cb_suggestion_approve.new(
-                    suggestion_id=suggestion_id)),
+                    action=ACTION_APPROVE, suggestion_id=suggestion_id)),
             types.InlineKeyboardButton(
-                text='Отклонить',
+                text=_.BTN_REJECT,
                 callback_data=cb_suggestion_reject.new(
-                    suggestion_id=suggestion_id)),
+                    action=ACTION_REJECT, suggestion_id=suggestion_id)),
         ]
 
         keyboard = types.InlineKeyboardMarkup(row_width=2)
@@ -102,12 +105,15 @@ async def send_data_to_moderators(message: types.Message, suggestion_id):
         await message.send_copy(chat_id, reply_markup=keyboard)
 
 
-async def suggestion_approve(call: types.CallbackQuery, callback_data: dict):
-    suggestion_id = callback_data.get('suggestion_id', None)
+async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
+    print(callback_data)
 
-    if suggestion_id is None:
-        await call.answer('Что-то пошло не так. Попробуйте позже')
-        return None
+    suggestion_id = callback_data.get('suggestion_id', None)
+    action = int(callback_data.get('action', '0'))
+
+    if suggestion_id is None or action not in (ACTION_REJECT, ACTION_APPROVE):
+        await call.answer(_.MSG_SMTH_IS_WRONG)
+        return False
 
     suggestion = DBSuggestion().get(pk=suggestion_id)
 
@@ -115,38 +121,40 @@ async def suggestion_approve(call: types.CallbackQuery, callback_data: dict):
             Suggestion.STATUS_APPROVED, Suggestion.STATUS_REJECTED):
         await remove_reply_markup(call.bot, call.message)
         await call.message.answer(
-            'Пользователь {} уже отмодерировал этот материал {}'.format(
+            _.MSG_MODERATION_HAS_ALREADY_TAKEN_PLACE.format(
                 suggestion.user.tg_username, suggestion.moderation_date))
+        return False
+
+    if action == ACTION_APPROVE:
+        target_status = Suggestion.STATUS_APPROVED
     else:
-        updata = {
-            'moderation_date': datetime.utcnow(),
-            'tg_moderator_id': call.message.from_user.id,
-            'status': Suggestion.STATUS_APPROVED
-        }
+        target_status = Suggestion.STATUS_REJECTED
 
-        if DBSuggestion().update(pk=suggestion_id, update_data=updata):
-            await remove_reply_markup(call.bot, call.message)
-            await call.message.reply(
-                'Вы одобрили предложение! Мы сообщим пользователю о '
-                'результатах модерации'.format(
-                    suggestion.user.tg_username, suggestion.moderation_date))
-            await call.bot.send_message(
-                chat_id=suggestion.tg_user_id,
-                reply_to_message_id=suggestion.tg_message_id,
-                text='Модератор одобрил предложенный материал!')
+    updata = {
+        'moderation_date': datetime.utcnow(),
+        'tg_moderator_id': call.message.from_user.id,
+        'status': target_status
+    }
 
+    if DBSuggestion().update(pk=suggestion_id, update_data=updata):
+        if action == ACTION_APPROVE:
+            text_moderation_ok_moderator = _.MSG_APPROVE_MODERATOR
+            text_moderation_ok_user = _.MSG_APPROVE_USER
+        else:
+            text_moderation_ok_moderator = _.MSG_REJECT_MODERATOR
+            text_moderation_ok_user = _.MSG_REJECT_USER
 
-async def suggestion_reject(call: types.CallbackQuery, callback_data: dict):
-    suggestion_id = callback_data.get('suggestion_id', None)
+        await remove_reply_markup(call.bot, call.message)
+        await call.message.reply(
+            text_moderation_ok_moderator.format(
+                suggestion.user.tg_username, suggestion.moderation_date))
+        await call.bot.send_message(
+            chat_id=suggestion.tg_user_id,
+            reply_to_message_id=suggestion.tg_message_id,
+            text=text_moderation_ok_user)
+        return True
 
-    if suggestion_id is None:
-        await call.answer('Что-то пошло не так. Попробуйте позже')
-        return None
-
-    await remove_reply_markup(call.bot, call.message)
-    await call.message.answer('Вы <b>отклонили</b> предложение')
-
-    await call.answer('Спасибо за решение! Мы сообщим пользователю результат')
+    return False
 
 
 def register_handlers_suggestion(dp: Dispatcher):
@@ -159,6 +167,6 @@ def register_handlers_suggestion(dp: Dispatcher):
 
 def register_callbacks_suggestion(dp: Dispatcher):
     dp.register_callback_query_handler(
-        suggestion_approve, cb_suggestion_approve.filter())
+        suggestion_proceed, cb_suggestion_approve.filter())
     dp.register_callback_query_handler(
-        suggestion_reject, cb_suggestion_reject.filter())
+        suggestion_proceed, cb_suggestion_reject.filter())

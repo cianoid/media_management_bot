@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from app.core.models import DBUser
+from app.core import textlib as _
 
 
 def user_start_message(user_id):
@@ -10,9 +11,7 @@ def user_start_message(user_id):
 
 
 async def cmd_cancel(message: types.Message, state: FSMContext):
-    await message.reply(
-        'ОК! Если что-то захотите прислать, просто введите команду '
-        '/suggest снова')
+    await message.reply(_.MSG_SUGGEST_CANCEL)
     await state.finish()
 
 
@@ -22,7 +21,7 @@ async def cmd_start(message: types.Message):
     start_message = user_start_message(tg_user_id)
 
     DBUser().get_or_create(tg_user_id=tg_user_id, tg_username=tg_username)
-    await message.reply(start_message)
+    await message.reply(start_message, reply_markup=None)
 
 
 def register_handlers_common(dp: Dispatcher):
