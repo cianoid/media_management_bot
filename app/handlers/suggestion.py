@@ -85,8 +85,7 @@ async def send_data_to_moderators(message: types.Message, suggestion_id):
     text_before = _.MSG_USER_SUGGEST.format(
         tg_user.username, tg_user.id, ALLOWED_TYPES[message.content_type])
 
-    for chat_id in [2097686630]:
-        # for chat_id in User.get_moderator_ids():
+    for chat_id in DBUser().get_moderator_ids():
         await message.bot.send_message(chat_id, text_before)
 
         buttons = [
