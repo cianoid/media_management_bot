@@ -114,6 +114,13 @@ class DBUser(__DBLayer):
 
         return obj.pk
 
+    def get_moderator_list(self):
+        stmt = select(User).where(
+            User.is_moderator.is_(False), User.is_active.is_(True))
+
+        with Session(self.engine) as session:
+            return session.scalars(stmt)
+
     def get_moderator_ids(self):
         stmt = select(User).where(
             User.is_moderator.is_(True), User.is_active.is_(True))
