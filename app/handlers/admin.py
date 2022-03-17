@@ -67,6 +67,8 @@ async def cmd_moderator_add(message: types.Message):
 
     if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
         await message.reply('{} теперь модератор'.format(user))
+        await message.bot.send_message(
+            user.tg_user_id, text='Поздравляем! Теперь вы модератор')
         return
 
 
@@ -89,6 +91,8 @@ async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
 
     if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
         await call.message.reply('{} больше не модератор'.format(user))
+        await call.bot.send_message(
+            user.tg_user_id, text='Вы больше не модератор...')
         return
 
 
