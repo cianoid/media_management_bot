@@ -5,12 +5,21 @@
 
 #### .env
 
-Для формирования списка из переменных *ADMIN_IDS* и *MODERATOR_IDS*, 
-параметры указывать через пробел 
+Для формирования списка из переменных *ADMIN_IDS* параметры указывать через пробел 
 
 ```
 TELEGRAM_TOKEN=
 ADMIN_IDS=
-MODERATOR_IDS=
 LOG_LEVEL=INFO
+```
+
+
+#### Запуск
+
+```
+python3 -m venv venv
+source/bin/activate
+pip install -r requirements.txt
+cd app
+python mbot.py
 ```
