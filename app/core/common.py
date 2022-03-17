@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import app.core.textlib as _
 from app.core.exceptions import EnvironmentParameterError
 
-
 load_dotenv()
 
 

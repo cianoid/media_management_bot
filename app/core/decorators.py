@@ -13,7 +13,7 @@ def is_moderator(dbuser):
             if dbuser.get(tg_user_id=tg_user_id).is_moderator:
                 return await func(*args, **kwargs)
 
-            await message.reply(_.MSG_NO_RIGHTS)
+            return await message.reply(_.MSG_NO_RIGHTS)
 
         return wrapper
     return decorator_factory

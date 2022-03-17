@@ -6,7 +6,6 @@ from aiogram.utils.callback_data import CallbackData
 from app.core import textlib as _
 from app.core.models import DBUser
 
-
 cb_moderator_delete = CallbackData('moderator_delete', 'tg_user_id')
 
 

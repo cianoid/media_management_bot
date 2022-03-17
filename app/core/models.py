@@ -162,7 +162,7 @@ class DBSuggestion(__DBLayer):
     def get_new_suggestion_list(self):
         session = Session(self.engine)
         stmt = select(Suggestion).where(
-            Suggestion.status==Suggestion.STATUS_NEW)
+            Suggestion.status == Suggestion.STATUS_NEW)
 
         return session.scalars(stmt).all()
 
