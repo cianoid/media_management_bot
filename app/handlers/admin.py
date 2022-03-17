@@ -1,3 +1,5 @@
+import re
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher.filters import IDFilter
 from aiogram.utils.callback_data import CallbackData
@@ -40,9 +42,32 @@ async def cmd_moderator_list(message: types.Message):
 
 
 async def cmd_moderator_add(message: types.Message):
-    print(message.text)
+    data = re.split(r' +', message.text)
 
-    await message.reply(_.MSG_ADMIN_COMMANDS)
+    try:
+        tg_user_id = data[1]
+    except IndexError:
+        await message.reply('Вы забыли написать id пользователя')
+        return
+
+    user = DBUser().get(tg_user_id=tg_user_id)
+
+    if not user:
+        await message.reply(
+            'Пользователя нет в нашей базе. Возможно, он не нажал /start')
+        return
+
+    if user.is_moderator:
+        await message.answer('{} уже модератор'.format(user))
+        return
+
+    update_data = {
+        'is_moderator': True
+    }
+
+    if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
+        await message.reply('{} теперь модератор'.format(user))
+        return
 
 
 async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
@@ -50,23 +75,21 @@ async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
 
     if tg_user_id is None:
         await call.answer(_.MSG_SMTH_IS_WRONG)
-        return False
+        return
 
     user = DBUser().get(tg_user_id=tg_user_id)
 
     if not user.is_moderator:
         await call.message.answer('{} уже не модератор'.format(user))
-        return False
+        return
 
-    updata = {
+    update_data = {
         'is_moderator': False
     }
 
-    if DBUser().update(tg_user_id=tg_user_id, update_data=updata):
+    if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
         await call.message.reply('{} больше не модератор'.format(user))
-        return True
-
-    return False
+        return
 
 
 def register_handlers_admin(dp: Dispatcher, admin_ids: list[int]):
