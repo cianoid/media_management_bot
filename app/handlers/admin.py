@@ -1,15 +1,10 @@
 import re
 
 from aiogram import Dispatcher, types
-from aiogram.dispatcher.filters import IDFilter
 from aiogram.utils.callback_data import CallbackData
 
 from app.core import textlib as _
 from app.core.models import DBUser
-
-
-async def cmd_commands_admin(message: types.Message):
-    await message.reply(_.MSG_ADMIN_COMMANDS)
 
 
 cb_moderator_delete = CallbackData('moderator_delete', 'tg_user_id')
@@ -96,9 +91,7 @@ async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
         return
 
 
-def register_handlers_admin(dp: Dispatcher, admin_ids: list[int]):
-    dp.register_message_handler(
-        cmd_commands_admin, IDFilter(user_id=admin_ids), commands="commands")
+def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(
         cmd_moderator_list, state='*', commands=('moderator_list',))
     dp.register_message_handler(
