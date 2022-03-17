@@ -105,8 +105,6 @@ async def send_data_to_moderators(message: types.Message, suggestion_id):
 
 
 async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
-    print(callback_data)
-
     suggestion_id = callback_data.get('suggestion_id', None)
     action = int(callback_data.get('action', '0'))
 
