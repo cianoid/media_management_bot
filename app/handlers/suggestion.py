@@ -7,6 +7,7 @@ from aiogram.utils.callback_data import CallbackData
 
 import app.core.textlib as _
 from app.core.constants import ALLOWED_TYPES
+from app.core.decorators import is_moderator
 from app.core.models import DBUser, DBSuggestion, Suggestion
 
 ACTION_APPROVE = 1
@@ -23,14 +24,31 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
         reply_markup=None)
 
 
+@is_moderator(dbuser=DBUser())
 async def suggestion_list(message: types.Message):
-    # проверка на модератора
-    await message.reply('Ща все будет')
     suggestions = DBSuggestion().get_new_suggestion_list()
+    chat_id = message.chat.id
 
     for suggestion in suggestions:
-        # что отправлять?
-        await send_data_to_moderators(message, suggestion.pk)
+        text = text_for_moderated_data(
+            suggestion.content_type, suggestion.user.tg_username,
+            suggestion.user.tg_user_id)
+        keyboard = keyboard_for_suggestion(suggestion.pk)
+
+        await message.bot.send_message(chat_id=chat_id, text=text)
+
+        if suggestion.content_type == types.ContentType.TEXT:
+            await message.bot.send_message(
+                chat_id=chat_id, text=suggestion.content_text,
+                reply_markup=keyboard)
+        elif suggestion.content_type == types.ContentType.PHOTO:
+            await message.bot.send_photo(
+                chat_id=chat_id, photo=suggestion.content_file_id,
+                caption=suggestion.content_caption, reply_markup=keyboard)
+        elif suggestion.content_type == types.ContentType.DOCUMENT:
+            await message.bot.send_document(
+                chat_id=chat_id, document=suggestion.content_file_id,
+                caption=suggestion.content_caption, reply_markup=keyboard)
 
 
 async def suggestion_start(message: types.Message):
@@ -90,28 +108,37 @@ cb_suggestion_approve = CallbackData('suggestion', 'action', 'suggestion_id')
 cb_suggestion_reject = CallbackData('suggestion', 'action', 'suggestion_id')
 
 
+def keyboard_for_suggestion(suggestion_id):
+    buttons = [
+        types.InlineKeyboardButton(
+            text=_.BTN_APPROVE,
+            callback_data=cb_suggestion_approve.new(
+                action=ACTION_APPROVE, suggestion_id=suggestion_id)),
+        types.InlineKeyboardButton(
+            text=_.BTN_REJECT,
+            callback_data=cb_suggestion_reject.new(
+                action=ACTION_REJECT, suggestion_id=suggestion_id)),
+    ]
+
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(*buttons)
+
+    return keyboard
+
+
+def text_for_moderated_data(content_type, username, userid):
+    return _.MSG_USER_SUGGEST.format(
+        username, userid, ALLOWED_TYPES[content_type])
+
+
 async def send_data_to_moderators(message: types.Message, suggestion_id):
-    tg_user = message.from_user
-    text_before = _.MSG_USER_SUGGEST.format(
-        tg_user.username, tg_user.id, ALLOWED_TYPES[message.content_type])
+    text = text_for_moderated_data(
+        message.content_type, message.from_user.username, message.from_user.id)
 
     for chat_id in DBUser().get_moderator_ids():
-        await message.bot.send_message(chat_id, text_before)
-
-        buttons = [
-            types.InlineKeyboardButton(
-                text=_.BTN_APPROVE,
-                callback_data=cb_suggestion_approve.new(
-                    action=ACTION_APPROVE, suggestion_id=suggestion_id)),
-            types.InlineKeyboardButton(
-                text=_.BTN_REJECT,
-                callback_data=cb_suggestion_reject.new(
-                    action=ACTION_REJECT, suggestion_id=suggestion_id)),
-        ]
-
-        keyboard = types.InlineKeyboardMarkup(row_width=2)
-        keyboard.add(*buttons)
-        await message.send_copy(chat_id, reply_markup=keyboard)
+        await message.bot.send_message(chat_id, text)
+        await message.send_copy(
+            chat_id, reply_markup=keyboard_for_suggestion(suggestion_id))
 
 
 async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
