@@ -33,7 +33,6 @@ BTN_REJECT = 'Отклонить'
 MSG_ADMIN_COMMANDS = (
     'Команды админа:\n'
     '/moderator_list - список модераторов\n'
-    '/moderator_add - добавить модератора\n'
-    '/moderatod_delete - удалить модератора')
+    '/moderator_add - добавить модератора')
 MSG_NO_MODERATORS = 'К сожалению, у вас нет модераторов'
 MSG_MODERATOR_LIST = 'Ваши модераторы:\n'

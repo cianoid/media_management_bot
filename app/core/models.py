@@ -24,7 +24,10 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     def __repr__(self):
-        return f'User(name={self.tg_user_id!r})'
+        if self.tg_username:
+            return f'@{self.tg_username} (id={self.tg_user_id!r})'
+
+        return f'id={self.tg_user_id!r}'
 
 
 class Suggestion(Base):
@@ -87,10 +90,10 @@ class DBUser(__DBLayer):
     model = User
 
     def get(self, tg_user_id):
+        session = Session(self.engine)
         stmt = select(User).where(User.tg_user_id == tg_user_id)
 
-        with Session(self.engine) as session:
-            return session.scalar(stmt)
+        return session.scalar(stmt)
 
     def create(self, tg_user_id, tg_username):
         with Session(self.engine) as session:
@@ -104,6 +107,7 @@ class DBUser(__DBLayer):
             return obj
 
         self.create(tg_user_id=tg_user_id, tg_username=tg_username)
+
         return self.get(tg_user_id=tg_user_id)
 
     def get_user_id(self, tg_user_id):
@@ -115,18 +119,29 @@ class DBUser(__DBLayer):
         return obj.pk
 
     def get_moderator_list(self):
-        stmt = select(User).where(
-            User.is_moderator.is_(False), User.is_active.is_(True))
-
-        with Session(self.engine) as session:
-            return session.scalars(stmt)
-
-    def get_moderator_ids(self):
+        session = Session(self.engine)
         stmt = select(User).where(
             User.is_moderator.is_(True), User.is_active.is_(True))
 
+        return session.scalars(stmt).all()
+
+    def get_moderator_ids(self):
+        return [user.tg_user_id for user in self.get_moderator_list()]
+
+    def update(self, tg_user_id, update_data):
         with Session(self.engine) as session:
-            return [user.tg_user_id for user in session.scalars(stmt)]
+            try:
+                obj = session.query(self.model).get(tg_user_id)
+
+                for key, value in update_data.items():
+                    setattr(obj, key, value)
+
+                session.commit()
+                session.flush()
+
+                return True
+            except StatementError:
+                return False
 
 
 class DBSuggestion(__DBLayer):
@@ -142,11 +157,10 @@ class DBSuggestion(__DBLayer):
             return obj.pk
 
     def get(self, pk):
-        stmt = select(self.model).where(
-            getattr(self.model, 'pk') == pk)
+        session = Session(self.engine)
+        stmt = select(self.model).where(getattr(self.model, 'pk') == pk)
 
-        with Session(self.engine) as session:
-            return session.scalar(stmt)
+        return session.scalar(stmt)
 
     def update(self, pk, update_data):
         with Session(self.engine) as session:

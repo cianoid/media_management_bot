@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 
 import app.core.textlib as _
 from app.core.exceptions import EnvironmentParameterError
-from handlers.admin import register_handlers_admin
+from handlers.admin import (register_callbacks_admin,
+                            register_handlers_admin)
 from handlers.common import register_handlers_common
 from handlers.suggestion import (register_callbacks_suggestion,
                                  register_handlers_suggestion)
@@ -74,6 +75,7 @@ async def main():
     register_handlers_suggestion(dp)
     register_handlers_admin(dp, ADMINS)
     register_callbacks_suggestion(dp)
+    register_callbacks_admin(dp)
 
     await dp.start_polling()
 
