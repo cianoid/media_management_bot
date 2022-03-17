@@ -30,9 +30,19 @@ MSG_USER_SUGGEST = 'Пользователь @{} (user_id={}) предложил
 BTN_APPROVE = 'Принять'
 BTN_REJECT = 'Отклонить'
 
+MSG_START = 'Некое приветственное сообщение\n\n'
 MSG_ADMIN_COMMANDS = (
-    'Команды админа:\n'
+    'Команды администратора:\n'
     '/moderator_list - список модераторов\n'
-    '/moderator_add - добавить модератора')
+    '/moderator_add <b>id</b> - добавить модератора\n\n')
+
+MSG_MODERATOR_COMMANDS = (
+    'Команды модератора:\n'
+    '/suggestion_list - отобразить список непроверенных материалов\n\n')
+
+MSG_USER_COMMANDS = (
+    'Доступные команды:\n'
+    '/suggestion - предложить материал\n'
+    '/help - отображает данное сообщение\n\n')
 MSG_NO_MODERATORS = 'К сожалению, у вас нет модераторов'
 MSG_MODERATOR_LIST = 'Ваши модераторы:\n'

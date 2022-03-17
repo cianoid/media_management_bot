@@ -2,12 +2,23 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
-from app.core.models import DBUser
 from app.core import textlib as _
+from app.core.common import is_admin
+from app.core.models import DBUser
 
 
-def user_start_message(user_id):
-    return 'Привет!'
+def user_start_message(tg_user_id):
+    text = _.MSG_START
+
+    if is_admin(tg_user_id):
+        text += _.MSG_ADMIN_COMMANDS
+
+    if DBUser().get(tg_user_id=tg_user_id).is_moderator:
+        text += _.MSG_MODERATOR_COMMANDS
+
+    text += _.MSG_USER_COMMANDS
+
+    return text
 
 
 async def cmd_cancel(message: types.Message, state: FSMContext):
