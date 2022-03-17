@@ -46,3 +46,14 @@ MSG_USER_COMMANDS = (
     '/help - отображает данное сообщение\n\n')
 MSG_NO_MODERATORS = 'К сожалению, у вас нет модераторов'
 MSG_MODERATOR_LIST = 'Ваши модераторы:\n'
+
+MSG_NO_RIGHTS = 'У вас нет прав для доступа к этой функции'
+MSG_NO_ID = 'Вы забыли написать id пользователя'
+MSG_USER_NOT_IN_DB = (
+    'Пользователя нет в нашей базе. Возможно, он не нажал /start')
+MSG_USER_ALREADY_MODERATOR = '{} уже модератор'
+MSG_USER_ALREADY_NOT_MODERATOR = '{} уже не модератор'
+MSG_USER_NOW_MODERATOR = '{} теперь модератор'
+MSG_USER_NOW_NOT_MODERATOR = '{} больше не модератор'
+MSG_UR_MODERATOR = 'Поздравляем! Теперь вы модератор'
+MSG_UR_NOT_MODERATOR = 'Вы больше не модератор...'

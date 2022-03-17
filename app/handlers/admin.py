@@ -42,18 +42,17 @@ async def cmd_moderator_add(message: types.Message):
     try:
         tg_user_id = data[1]
     except IndexError:
-        await message.reply('Вы забыли написать id пользователя')
+        await message.reply(_.MSG_NO_ID)
         return
 
     user = DBUser().get(tg_user_id=tg_user_id)
 
     if not user:
-        await message.reply(
-            'Пользователя нет в нашей базе. Возможно, он не нажал /start')
+        await message.reply(_.MSG_USER_NOT_IN_DB)
         return
 
     if user.is_moderator:
-        await message.answer('{} уже модератор'.format(user))
+        await message.answer(_.MSG_USER_ALREADY_MODERATOR.format(user))
         return
 
     update_data = {
@@ -61,9 +60,9 @@ async def cmd_moderator_add(message: types.Message):
     }
 
     if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
-        await message.reply('{} теперь модератор'.format(user))
+        await message.reply(_.MSG_USER_NOW_MODERATOR.format(user))
         await message.bot.send_message(
-            user.tg_user_id, text='Поздравляем! Теперь вы модератор')
+            user.tg_user_id, text=_.MSG_UR_MODERATOR)
         return
 
 
@@ -77,7 +76,8 @@ async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
     user = DBUser().get(tg_user_id=tg_user_id)
 
     if not user.is_moderator:
-        await call.message.answer('{} уже не модератор'.format(user))
+        await call.message.answer(
+            _.MSG_USER_ALREADY_NOT_MODERATOR.format(user))
         return
 
     update_data = {
@@ -85,9 +85,9 @@ async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
     }
 
     if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
-        await call.message.reply('{} больше не модератор'.format(user))
+        await call.message.reply(_.MSG_USER_NOW_NOT_MODERATOR.format(user))
         await call.bot.send_message(
-            user.tg_user_id, text='Вы больше не модератор...')
+            user.tg_user_id, text=_.MSG_UR_NOT_MODERATOR)
         return
 
 
