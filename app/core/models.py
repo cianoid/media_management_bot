@@ -1,13 +1,9 @@
-from datetime import datetime
-
 from sqlalchemy import (BigInteger, Boolean, Column, DateTime, ForeignKey,
                         Integer, SmallInteger, String, create_engine, future,
-                        select, update)
+                        select)
 from sqlalchemy.exc import StatementError
-from sqlalchemy.orm import Session, declarative_base, relationship, validates
+from sqlalchemy.orm import Session, declarative_base, relationship
 from sqlalchemy.sql import func
-
-# from app.core.constants import ALLOWED_TYPES
 
 Base = declarative_base()
 SIZE = 10240
@@ -41,7 +37,8 @@ class Suggestion(Base):
 
     pk = Column(Integer, primary_key=True)
     tg_user_id = Column(
-        BigInteger, ForeignKey(f'{User.__tablename__}.tg_user_id'), nullable=True)
+        BigInteger, ForeignKey(f'{User.__tablename__}.tg_user_id'),
+        nullable=True)
     tg_message_id = Column(BigInteger)
 
     content_type = Column(String, nullable=False)

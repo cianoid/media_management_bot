@@ -8,7 +8,7 @@ from aiogram.utils.callback_data import CallbackData
 import app.core.textlib as _
 from app.core.constants import ALLOWED_TYPES
 from app.core.decorators import is_moderator
-from app.core.models import DBUser, DBSuggestion, Suggestion
+from app.core.models import DBSuggestion, DBUser, Suggestion
 
 ACTION_APPROVE = 1
 ACTION_REJECT = 2
