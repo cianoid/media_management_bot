@@ -2,7 +2,6 @@ from datetime import datetime
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import IDFilter
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils.callback_data import CallbackData
 
@@ -27,6 +26,11 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
 async def suggestion_list(message: types.Message):
     # проверка на модератора
     await message.reply('Ща все будет')
+    suggestions = DBSuggestion().get_new_suggestion_list()
+
+    for suggestion in suggestions:
+        # что отправлять?
+        await send_data_to_moderators(message, suggestion.pk)
 
 
 async def suggestion_start(message: types.Message):
@@ -160,7 +164,7 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
 
 def register_handlers_suggestion(dp: Dispatcher):
     dp.register_message_handler(
-        suggestion_list, IDFilter(user_id=DBUser().get_moderator_ids()), commands="suggestion_list")
+        suggestion_list, commands="suggestion_list")
     dp.register_message_handler(
         suggestion_start, state='*', commands=('suggestion',))
     dp.register_message_handler(

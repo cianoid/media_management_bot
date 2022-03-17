@@ -162,6 +162,13 @@ class DBSuggestion(__DBLayer):
 
         return session.scalar(stmt)
 
+    def get_new_suggestion_list(self):
+        session = Session(self.engine)
+        stmt = select(Suggestion).where(
+            Suggestion.status==Suggestion.STATUS_NEW)
+
+        return session.scalars(stmt).all()
+
     def update(self, pk, update_data):
         with Session(self.engine) as session:
             try:
