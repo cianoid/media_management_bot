@@ -110,7 +110,7 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
 
     if suggestion_id is None or action not in (ACTION_REJECT, ACTION_APPROVE):
         await call.answer(_.MSG_SMTH_IS_WRONG)
-        return False
+        return
 
     suggestion = DBSuggestion().get(pk=suggestion_id)
 
@@ -120,20 +120,20 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
         await call.message.answer(
             _.MSG_MODERATION_HAS_ALREADY_TAKEN_PLACE.format(
                 suggestion.user.tg_username, suggestion.moderation_date))
-        return False
+        return
 
     if action == ACTION_APPROVE:
         target_status = Suggestion.STATUS_APPROVED
     else:
         target_status = Suggestion.STATUS_REJECTED
 
-    updata = {
+    update_data = {
         'moderation_date': datetime.utcnow(),
         'tg_moderator_id': call.message.from_user.id,
         'status': target_status
     }
 
-    if DBSuggestion().update(pk=suggestion_id, update_data=updata):
+    if DBSuggestion().update(pk=suggestion_id, update_data=update_data):
         if action == ACTION_APPROVE:
             text_moderation_ok_moderator = _.MSG_APPROVE_MODERATOR
             text_moderation_ok_user = _.MSG_APPROVE_USER
@@ -149,9 +149,7 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
             chat_id=suggestion.tg_user_id,
             reply_to_message_id=suggestion.tg_message_id,
             text=text_moderation_ok_user)
-        return True
-
-    return False
+        return
 
 
 def register_handlers_suggestion(dp: Dispatcher):
