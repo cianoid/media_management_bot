@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
@@ -24,9 +22,7 @@ def user_start_message(tg_user_id):
 
 
 async def cmd_cancel(message: types.Message, state: FSMContext):
-    logging.info(
-        'Пользователь id={} выполнил команду /cancel'.format(
-            message.from_user.id))
+    logger.info(_.LOG_CMD.format(message.from_user.id, message.text))
 
     await message.reply(_.MSG_SUGGEST_CANCEL)
     await state.finish()
@@ -34,10 +30,13 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
 
 async def cmd_start(message: types.Message):
     tg_user_id = message.from_user.id
+    logger.info(_.LOG_CMD.format(tg_user_id, message.text))
+
     tg_username = message.from_user.username
     start_message = user_start_message(tg_user_id)
 
     DBUser().get_or_create(tg_user_id=tg_user_id, tg_username=tg_username)
+
     await message.reply(start_message, reply_markup=None)
 
 

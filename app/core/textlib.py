@@ -2,6 +2,15 @@ LOG_CRITICAL_ENV_CHECK_FAILED = (
     'Отсутствует обязательная переменная "{parameter}". Бот остановлен')
 LOG_DEBUG_ENV_CHECK = 'Проверка env-переменных для подключения'
 LOG_INFO_LAUNCH = 'Бот запущен!'
+LOG_CMD = 'Пользователь id={} выполнил команду {}'
+LOG_CMD_SUGGESTION_TEXT = (
+    'Пользователь id={} отправил предложение типа текст {}')
+LOG_CMD_SUGGESTION_DOCUMENT = (
+    'Пользователь id={} отправил предложение типа документ file_id={}, '
+    'file_unique_id={}, caption={}')
+LOG_CMD_SUGGESTION_PHOTO = (
+    'Пользователь id={} отправил предложение типа фото file_id={}, '
+    'file_unique_id={}, caption={}')
 
 TEXT_HELP_TEXT = 'текст'
 TEXT_HELP_PHOTO = 'фото'
@@ -57,3 +66,9 @@ MSG_USER_NOW_MODERATOR = '{} теперь модератор'
 MSG_USER_NOW_NOT_MODERATOR = '{} больше не модератор'
 MSG_UR_MODERATOR = 'Поздравляем! Теперь вы модератор'
 MSG_UR_NOT_MODERATOR = 'Вы больше не модератор...'
+MSG_BTN_APPROVE = (
+    'Модератор ([TG]id={}) нажал кнопку "Одобрить" для предложения с '
+    '[DB]id={}')
+MSG_BTN_REJECT = (
+    'Модератор ([TG]id={}) нажал кнопку "Отклонить" для предложения с '
+    '[DB]id={}')
