@@ -1,9 +1,11 @@
+import logging
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from app.core import textlib as _
-from app.core.common import is_admin
+from app.core.common import is_admin, logger
 from app.core.models import DBUser
 
 
@@ -22,6 +24,10 @@ def user_start_message(tg_user_id):
 
 
 async def cmd_cancel(message: types.Message, state: FSMContext):
+    logging.info(
+        'Пользователь id={} выполнил команду /cancel'.format(
+            message.from_user.id))
+
     await message.reply(_.MSG_SUGGEST_CANCEL)
     await state.finish()
 

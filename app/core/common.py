@@ -20,26 +20,19 @@ logger = logging.getLogger(__name__)
 
 
 def log_init():
-    log_level = os.getenv('LOG_LEVEL', default='INFO')
-    level = getattr(logging, log_level)
-
     logs_directory = os.path.join(os.getcwd(), 'logs')
-    file_path = os.path.join(logs_directory, '%s.log' % log_level.lower())
+    log_level = os.getenv('LOG_LEVEL', default='INFO')
 
     if not os.path.isdir(logs_directory):
         os.mkdir(logs_directory)
+    filename = os.path.join(logs_directory, '%s.log' % log_level.lower())
 
-    formatter = logging.Formatter(
-        '%(asctime)s %(name)s [%(levelname)s] %(message)s')
-    stream_handler = logging.StreamHandler()
-    file_handler = logging.FileHandler(file_path, 'a+')
+    logging.basicConfig(
+        filename=filename, filemode='a', level=log_level,
+        format='%(asctime)s %(name)s [%(levelname)s] %(message)s',
+        datefmt='%d.%m.%y %T%z')
 
-    logger.setLevel(level)
-    logger.addHandler(stream_handler)
-    logger.addHandler(file_handler)
-    stream_handler.setFormatter(formatter)
-    file_handler.setFormatter(formatter)
-    logging.basicConfig(level=log_level)
+    logging.info('Logger initialized')
 
 
 def environment_check():

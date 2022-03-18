@@ -24,7 +24,7 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
         reply_markup=None)
 
 
-@is_moderator(dbuser=DBUser())
+@is_moderator(db_user=DBUser())
 async def suggestion_list(message: types.Message):
     suggestions = DBSuggestion().get_new_suggestion_list()
     chat_id = message.chat.id
