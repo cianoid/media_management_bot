@@ -29,7 +29,8 @@ def log_init():
 
     logging.basicConfig(
         filename=filename, filemode='a', level=log_level,
-        format='%(asctime)s %(name)s [%(levelname)s] %(message)s',
+        format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)s - '
+               '%(funcName)s()] %(message)s',
         datefmt='%d.%m.%y %T%z')
 
     logging.info('Logger initialized')
