@@ -2,6 +2,7 @@ import logging
 import os
 import re
 
+from functools import wraps
 from dotenv import load_dotenv
 
 import app.core.textlib as _
@@ -52,3 +53,31 @@ def environment_check():
 
 def is_admin(tg_user_id):
     return tg_user_id in ADMINS
+
+
+def log_entered_command(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        message = args[0]
+        logger.info(_.LOG_CMD.format(message.from_user.id, message.text))
+
+        return await func(*args, **kwargs)
+    return wrapper
+
+
+def log_pressed_button(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        call = args[0]
+        btn_text = ''
+
+        for btn in call.message.reply_markup.inline_keyboard[0]:
+            if btn.callback_data == call.data:
+                btn_text = btn.text
+                break
+
+        logger.info(
+            _.LOG_BTN.format(call.from_user.id, btn_text, call.data))
+
+        return await func(*args, **kwargs)
+    return wrapper
