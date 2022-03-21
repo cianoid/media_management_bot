@@ -7,6 +7,7 @@ from aiogram.utils.callback_data import CallbackData
 
 import app.core.textlib as _
 from app.core.constants import ALLOWED_TYPES
+from app.core.common import logger, log_entered_command, log_callback_action
 from app.core.decorators import is_moderator
 from app.core.models import DBSuggestion, DBUser, Suggestion
 
@@ -25,6 +26,7 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
 
 
 @is_moderator(db_user=DBUser())
+@log_entered_command
 async def suggestion_list(message: types.Message):
     suggestions = DBSuggestion().get_new_suggestion_list()
     chat_id = message.chat.id
@@ -51,6 +53,7 @@ async def suggestion_list(message: types.Message):
                 caption=suggestion.content_caption, reply_markup=keyboard)
 
 
+@log_entered_command
 async def suggestion_start(message: types.Message):
     tg_user_id = message.from_user.id
     tg_username = message.from_user.username
@@ -60,6 +63,7 @@ async def suggestion_start(message: types.Message):
     await SendSuggestion.waiting_for_data.set()
 
 
+@log_entered_command
 async def suggestion_data(message: types.Message, state: FSMContext):
     if message.content_type not in ALLOWED_TYPES.keys():
         await message.reply(_.MSG_SUGGEST_START)
@@ -72,14 +76,26 @@ async def suggestion_data(message: types.Message, state: FSMContext):
     content = {}
 
     if content_type == types.ContentType.TEXT:
+        logger.info(
+            _.LOG_CMD_SUGGESTION_TEXT.format(
+                message.from_user.id, message.text))
+
         content = {
             'content_text': message.text,
             'tg_message_id': message.message_id
         }
     elif content_type == types.ContentType.DOCUMENT:
+        file_id = message.document['file_id']
+        file_unique_id = message.document['file_unique_id']
+
+        logger.info(
+            _.LOG_CMD_SUGGESTION_PHOTO.format(
+                message.from_user.id, file_id, file_unique_id,
+                message.caption))
+
         content = {
-            'content_file_id': message.document['file_id'],
-            'content_file_unique_id': message.document['file_unique_id'],
+            'content_file_id': file_id,
+            'content_file_unique_id': file_unique_id,
             'content_file_size': message.document['file_size'],
             'content_file_name': message.document['file_name'],
             'content_mime_type': message.document['mime_type'],
@@ -87,8 +103,16 @@ async def suggestion_data(message: types.Message, state: FSMContext):
             'tg_message_id': message.message_id
         }
     elif content_type == types.ContentType.PHOTO:
+        file_id = message.photo[-1].file_id
+        file_unique_id = message.photo[-1].file_unique_id
+
+        logger.info(
+            _.LOG_CMD_SUGGESTION_PHOTO.format(
+                message.from_user.id, file_id, file_unique_id,
+                message.caption))
+
         content = {
-            'content_file_id': message.photo[-1].file_id,
+            'content_file_id': file_id,
             'content_file_unique_id': message.photo[-1].file_unique_id,
             'content_file_size': message.photo[-1].file_size,
             'content_caption': message.caption,
@@ -141,11 +165,17 @@ async def send_data_to_moderators(message: types.Message, suggestion_id):
             chat_id, reply_markup=keyboard_for_suggestion(suggestion_id))
 
 
+@log_callback_action
 async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
     suggestion_id = callback_data.get('suggestion_id', None)
     action = int(callback_data.get('action', '0'))
 
     if suggestion_id is None or action not in (ACTION_REJECT, ACTION_APPROVE):
+        logger.error(
+            _.LOG_BTN_NO_SUGGESTIONID
+            if suggestion_id is None
+            else _.LOG_BTN_NO_ACTION)
+
         await call.answer(_.MSG_SMTH_IS_WRONG)
         return
 
@@ -153,16 +183,20 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
 
     if suggestion.status in (
             Suggestion.STATUS_APPROVED, Suggestion.STATUS_REJECTED):
+        logger.warning(
+            (_.LOG_SUGGESTION_BEEN_APPROVED
+             if action == ACTION_APPROVE
+             else _.LOG_SUGGESTION_BEEN_REJECTED).format(suggestion_id))
+
         await remove_reply_markup(call.bot, call.message)
         await call.message.answer(
             _.MSG_MODERATION_HAS_ALREADY_TAKEN_PLACE.format(
                 suggestion.user.tg_username, suggestion.moderation_date))
         return
 
-    if action == ACTION_APPROVE:
-        target_status = Suggestion.STATUS_APPROVED
-    else:
-        target_status = Suggestion.STATUS_REJECTED
+    target_status = Suggestion.STATUS_APPROVED \
+        if action == ACTION_APPROVE \
+        else Suggestion.STATUS_REJECTED
 
     update_data = {
         'moderation_date': datetime.utcnow(),
@@ -174,9 +208,13 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
         if action == ACTION_APPROVE:
             text_moderation_ok_moderator = _.MSG_APPROVE_MODERATOR
             text_moderation_ok_user = _.MSG_APPROVE_USER
+            text_log = _.LOG_SUGGESTION_APPROVED
         else:
             text_moderation_ok_moderator = _.MSG_REJECT_MODERATOR
             text_moderation_ok_user = _.MSG_REJECT_USER
+            text_log = _.LOG_SUGGESTION_REJECTED
+
+        logger.info(text_log.format(suggestion.moderator, suggestion_id))
 
         await remove_reply_markup(call.bot, call.message)
         await call.message.reply(

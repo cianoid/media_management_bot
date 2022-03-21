@@ -65,7 +65,7 @@ def log_entered_command(func):
     return wrapper
 
 
-def log_pressed_button(func):
+def log_callback_action(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         call = args[0]

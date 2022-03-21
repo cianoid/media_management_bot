@@ -12,6 +12,13 @@ LOG_CMD_SUGGESTION_DOCUMENT = (
 LOG_CMD_SUGGESTION_PHOTO = (
     'Пользователь [TG]id={} отправил предложение типа фото file_id={}, '
     'file_unique_id={}, caption={}')
+LOG_BTN_NO_SUGGESTIONID = (
+    'При нажатии на кнопку не был передано идентификатор предложаения в БД')
+LOG_BTN_NO_ACTION = 'При нажатии на кнопку не был передан тип действия'
+LOG_SUGGESTION_BEEN_APPROVED = 'Предложение ([DB]id={}) уже одобрено'
+LOG_SUGGESTION_BEEN_REJECTED = 'Предложение ([DB]id={}) уже отклонено'
+LOG_SUGGESTION_APPROVED = 'Модератор {} одобрил предложение ([DB]id={})'
+LOG_SUGGESTION_REJECTED = 'Модератор {} отколонил предложение ([DB]id={})'
 
 TEXT_HELP_TEXT = 'текст'
 TEXT_HELP_PHOTO = 'фото'
@@ -22,12 +29,13 @@ MSG_SUGGEST_START = (
     f'<b>{TEXT_HELP_DOCUMENT}</b>, которые хотите отправить на рассмотрение '
     f'или напишите <b>отмена</b> (или команду /cancel) для отмены')
 MSG_SUGGEST_CANCEL = (
-    'ОК! Если что-то захотите прислать, просто введите команду /suggest снова')
+    'ОК! Если что-то захотите прислать, просто введите команду /suggestion '
+    'снова')
 MSG_SUGGEST_END = 'Спасибо! Взяли {} на рассмотрение'
 
 MSG_SMTH_IS_WRONG = 'Что-то пошло не так. Попробуйте позже'
 MSG_MODERATION_HAS_ALREADY_TAKEN_PLACE = (
-    'Пользователь {} уже отмодерировал этот материал {}')
+    'Модератор {} уже отмодерировал этот материал {}')
 MSG_APPROVE_MODERATOR = (
     'Вы одобрили предложение! Мы сообщим пользователю о результатах модерации')
 MSG_APPROVE_USER = 'Модератор одобрил предложенный материал!'
@@ -65,11 +73,13 @@ MSG_USER_ALREADY_MODERATOR = '{} уже модератор'
 MSG_USER_ALREADY_NOT_MODERATOR = '{} уже не модератор'
 MSG_USER_NOW_MODERATOR = '{} теперь модератор'
 MSG_USER_NOW_NOT_MODERATOR = '{} больше не модератор'
-MSG_UR_MODERATOR = 'Поздравляем! Теперь вы модератор'
+MSG_UR_MODERATOR = (
+    'Поздравляем! Теперь вы модератор. Используйте команду /help чтобы '
+    'посмотреть доступные команды')
 MSG_UR_NOT_MODERATOR = 'Вы больше не модератор...'
-MSG_BTN_APPROVE = (
-    'Модератор ([TG]id={}) нажал кнопку "Одобрить" для предложения с '
-    '[DB]id={}')
-MSG_BTN_REJECT = (
-    'Модератор ([TG]id={}) нажал кнопку "Отклонить" для предложения с '
-    '[DB]id={}')
+# MSG_BTN_APPROVE = (
+#     'Модератор ([TG]id={}) нажал кнопку "Одобрить" для предложения с '
+#     '[DB]id={}')
+# MSG_BTN_REJECT = (
+#     'Модератор ([TG]id={}) нажал кнопку "Отклонить" для предложения с '
+#     '[DB]id={}')
