@@ -14,7 +14,7 @@ LOG_LEVEL=INFO
 ```
 
 
-#### Запуск
+#### Запуск в тестовом режиме
 
 ```
 python3 -m venv venv
