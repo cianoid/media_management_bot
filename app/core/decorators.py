@@ -27,10 +27,10 @@ def only_private_messages(func):
 
         try:
             message = args[0]
-            message_type = args[0]['chat']['type']
+            message_type = args[0].chat.type
         except KeyError:
-            message = args[0]['message']
-            message_type = message['chat']['type']
+            message = args[0].message
+            message_type = message.chat.type
         finally:
             if message_type == 'private':
                 return await func(*args, **kwargs)
