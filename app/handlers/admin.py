@@ -4,7 +4,7 @@ from aiogram import Dispatcher, types
 from aiogram.utils.callback_data import CallbackData
 
 from app.core import textlib as _
-from app.core.common import logger, log_user_action, log_user_action
+from app.core.common import log_user_action, logger
 from app.core.decorators import only_private_messages
 from app.core.models import DBUser
 

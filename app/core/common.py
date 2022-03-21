@@ -1,8 +1,8 @@
 import logging
 import os
 import re
-
 from functools import wraps
+
 from dotenv import load_dotenv
 
 import app.core.textlib as _

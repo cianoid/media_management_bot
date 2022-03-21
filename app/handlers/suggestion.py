@@ -6,8 +6,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils.callback_data import CallbackData
 
 import app.core.textlib as _
+from app.core.common import log_user_action, logger
 from app.core.constants import ALLOWED_TYPES
-from app.core.common import logger, log_user_action
 from app.core.decorators import is_moderator, only_private_messages
 from app.core.models import DBSuggestion, DBUser, Suggestion
 
@@ -198,9 +198,9 @@ async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
                 suggestion.user.tg_username, suggestion.moderation_date))
         return
 
-    target_status = Suggestion.STATUS_APPROVED \
-        if action == ACTION_APPROVE \
-        else Suggestion.STATUS_REJECTED
+    target_status = (Suggestion.STATUS_APPROVED
+                     if action == ACTION_APPROVE
+                     else Suggestion.STATUS_REJECTED)
 
     update_data = {
         'moderation_date': datetime.utcnow(),
