@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from app.core import textlib as _
-from app.core.common import is_admin, log_entered_command
+from app.core.common import is_admin, log_user_action
 from app.core.decorators import only_private_messages
 from app.core.models import DBUser
 
@@ -25,14 +25,14 @@ def user_start_message(from_user):
     return text
 
 
-@log_entered_command
+@log_user_action
 @only_private_messages
 async def cmd_cancel(message: types.Message, state: FSMContext):
     await message.reply(_.MSG_SUGGEST_CANCEL)
     await state.finish()
 
 
-@log_entered_command
+@log_user_action
 @only_private_messages
 async def cmd_start(message: types.Message):
     tg_user_id = message.from_user.id

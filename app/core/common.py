@@ -55,29 +55,25 @@ def is_admin(tg_user_id):
     return tg_user_id in ADMINS
 
 
-def log_entered_command(func):
+def log_user_action(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        message = args[0]
-        logger.info(_.LOG_CMD.format(message.from_user.id, message.text))
+        data = args[0]
+        if 'message' in data:
+            call = data
+            btn_text = ''
 
-        return await func(*args, **kwargs)
-    return wrapper
+            for btn in call.message.reply_markup.inline_keyboard[0]:
+                if btn.callback_data == call.data:
+                    btn_text = btn.text
+                    break
 
+            logger.info(
+                _.LOG_BTN.format(call.from_user.id, btn_text, call.data))
 
-def log_callback_action(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        call = args[0]
-        btn_text = ''
-
-        for btn in call.message.reply_markup.inline_keyboard[0]:
-            if btn.callback_data == call.data:
-                btn_text = btn.text
-                break
-
-        logger.info(
-            _.LOG_BTN.format(call.from_user.id, btn_text, call.data))
+        else:
+            message = data
+            logger.info(_.LOG_CMD.format(message.from_user.id, message.text))
 
         return await func(*args, **kwargs)
     return wrapper

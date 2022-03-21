@@ -22,19 +22,13 @@ def is_moderator(db_user):
 def only_private_messages(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        message_type = None
-        message = None
+        data = args[0]
+        message = data.message if 'message' in data else data
+        message_type = message.chat.type
 
-        try:
-            message = args[0]
-            message_type = args[0].chat.type
-        except KeyError:
-            message = args[0].message
-            message_type = message.chat.type
-        finally:
-            if message_type == 'private':
-                return await func(*args, **kwargs)
+        if message_type == 'private':
+            return await func(*args, **kwargs)
 
-            return await message.reply(_.MSG_ONLY_PRIVATE)
+        return await message.reply(_.MSG_ONLY_PRIVATE)
 
     return wrapper

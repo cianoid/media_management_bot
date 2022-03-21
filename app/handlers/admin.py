@@ -4,14 +4,14 @@ from aiogram import Dispatcher, types
 from aiogram.utils.callback_data import CallbackData
 
 from app.core import textlib as _
-from app.core.common import logger, log_entered_command, log_callback_action
+from app.core.common import logger, log_user_action, log_user_action
 from app.core.decorators import only_private_messages
 from app.core.models import DBUser
 
 cb_moderator_delete = CallbackData('moderator_delete', 'tg_user_id')
 
 
-@log_entered_command
+@log_user_action
 @only_private_messages
 async def cmd_moderator_list(message: types.Message):
     moderators = DBUser().get_moderator_list()
@@ -39,7 +39,7 @@ async def cmd_moderator_list(message: types.Message):
     await message.reply(text, reply_markup=keyboard)
 
 
-@log_entered_command
+@log_user_action
 @only_private_messages
 async def cmd_moderator_add(message: types.Message):
     data = re.split(r' +', message.text)
@@ -75,7 +75,7 @@ async def cmd_moderator_add(message: types.Message):
         return
 
 
-@log_callback_action
+@log_user_action
 @only_private_messages
 async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
     tg_user_id = callback_data.get('tg_user_id', None)
