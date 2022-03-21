@@ -8,7 +8,7 @@ from aiogram.utils.callback_data import CallbackData
 import app.core.textlib as _
 from app.core.constants import ALLOWED_TYPES
 from app.core.common import logger, log_entered_command, log_callback_action
-from app.core.decorators import is_moderator
+from app.core.decorators import is_moderator, only_private_messages
 from app.core.models import DBSuggestion, DBUser, Suggestion
 
 ACTION_APPROVE = 1
@@ -27,6 +27,7 @@ async def remove_reply_markup(bot: Bot, message: types.Message):
 
 @is_moderator(db_user=DBUser())
 @log_entered_command
+@only_private_messages
 async def suggestion_list(message: types.Message):
     suggestions = DBSuggestion().get_new_suggestion_list()
     chat_id = message.chat.id
@@ -54,6 +55,7 @@ async def suggestion_list(message: types.Message):
 
 
 @log_entered_command
+@only_private_messages
 async def suggestion_start(message: types.Message):
     tg_user_id = message.from_user.id
     tg_username = message.from_user.username
@@ -64,6 +66,7 @@ async def suggestion_start(message: types.Message):
 
 
 @log_entered_command
+@only_private_messages
 async def suggestion_data(message: types.Message, state: FSMContext):
     if message.content_type not in ALLOWED_TYPES.keys():
         await message.reply(_.MSG_SUGGEST_START)
@@ -166,6 +169,7 @@ async def send_data_to_moderators(message: types.Message, suggestion_id):
 
 
 @log_callback_action
+@only_private_messages
 async def suggestion_proceed(call: types.CallbackQuery, callback_data: dict):
     suggestion_id = callback_data.get('suggestion_id', None)
     action = int(callback_data.get('action', '0'))
