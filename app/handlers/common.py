@@ -3,17 +3,20 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from app.core import textlib as _
-from app.core.common import is_admin, logger
+from app.core.common import is_admin, log_entered_command
 from app.core.models import DBUser
 
 
-def user_start_message(tg_user_id):
+def user_start_message(from_user):
     text = _.MSG_START
 
-    if is_admin(tg_user_id):
+    if is_admin(from_user.id):
         text += _.MSG_ADMIN_COMMANDS
 
-    if DBUser().get(tg_user_id=tg_user_id).is_moderator:
+    user = DBUser().get_or_create(
+        tg_user_id=from_user.id, tg_username=from_user.username)
+
+    if user.is_moderator:
         text += _.MSG_MODERATOR_COMMANDS
 
     text += _.MSG_USER_COMMANDS
@@ -21,19 +24,17 @@ def user_start_message(tg_user_id):
     return text
 
 
+@log_entered_command
 async def cmd_cancel(message: types.Message, state: FSMContext):
-    logger.info(_.LOG_CMD.format(message.from_user.id, message.text))
-
     await message.reply(_.MSG_SUGGEST_CANCEL)
     await state.finish()
 
 
+@log_entered_command
 async def cmd_start(message: types.Message):
     tg_user_id = message.from_user.id
-    logger.info(_.LOG_CMD.format(tg_user_id, message.text))
-
     tg_username = message.from_user.username
-    start_message = user_start_message(tg_user_id)
+    start_message = user_start_message(message.from_user)
 
     DBUser().get_or_create(tg_user_id=tg_user_id, tg_username=tg_username)
 
