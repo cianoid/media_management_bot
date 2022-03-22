@@ -79,7 +79,8 @@ class __DBLayer:
     engine: future.Engine
 
     def __init__(self):
-        self.engine = create_engine("sqlite:///db.db", echo=False, future=True)
+        self.engine = create_engine(
+            "sqlite:///db/db.db", echo=False, future=True)
         Base.metadata.create_all(self.engine)
 
 

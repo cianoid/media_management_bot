@@ -3,7 +3,7 @@
 ![workflow](https://github.com/cianoid/media_management_bot/actions/workflows/bot_workflow.yml/badge.svg)
 
 
-#### .env
+#### app/.env
 
 Для формирования списка из переменных *ADMIN_IDS* параметры указывать через пробел 
 
@@ -25,14 +25,14 @@ python mbot.py
 ```
 
 #### Запуск в контейнере
+
 ```
-cd app
-docker container rm mbot
-docker build --no-cache -t mbot .
-docker run --name mbot -d mbot 
+cd infra
+docker-compose up -d --build
 ```
 
 #### Остановка контейнера
+
 ```
-docker container stop mbot
+docker-compose stop
 ```
