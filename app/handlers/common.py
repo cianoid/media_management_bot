@@ -2,10 +2,10 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
-from app.core import textlib as _
-from app.core.common import is_admin, log_user_action
-from app.core.decorators import only_private_messages
-from app.core.models import DBUser
+from core import textlib as _
+from core.common import is_admin, log_user_action
+from core.decorators import only_private_messages
+from core.models import DBUser
 
 
 def user_start_message(from_user):

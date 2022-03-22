@@ -3,10 +3,10 @@ import re
 from aiogram import Dispatcher, types
 from aiogram.utils.callback_data import CallbackData
 
-from app.core import textlib as _
-from app.core.common import log_user_action, logger
-from app.core.decorators import only_private_messages
-from app.core.models import DBUser
+from core import textlib as _
+from core.common import log_user_action, logger
+from core.decorators import only_private_messages
+from core.models import DBUser
 
 cb_moderator_delete = CallbackData('moderator_delete', 'tg_user_id')
 

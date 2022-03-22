@@ -5,11 +5,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils.callback_data import CallbackData
 
-import app.core.textlib as _
-from app.core.common import log_user_action, logger
-from app.core.constants import ALLOWED_TYPES
-from app.core.decorators import is_moderator, only_private_messages
-from app.core.models import DBSuggestion, DBUser, Suggestion
+import core.textlib as _
+from core.common import log_user_action, logger
+from core.constants import ALLOWED_TYPES
+from core.decorators import is_moderator, only_private_messages
+from core.models import DBSuggestion, DBUser, Suggestion
 
 ACTION_APPROVE = 1
 ACTION_REJECT = 2

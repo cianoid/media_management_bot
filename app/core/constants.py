@@ -1,6 +1,6 @@
 from aiogram import types
 
-import app.core.textlib as _
+import core.textlib as _
 
 ALLOWED_TYPES = {
     types.ContentType.TEXT: _.TEXT_HELP_TEXT,

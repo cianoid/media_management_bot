@@ -1,6 +1,6 @@
 from functools import wraps
 
-from app.core import textlib as _
+from core import textlib as _
 
 
 def is_moderator(db_user):
