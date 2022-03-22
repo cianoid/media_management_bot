@@ -64,12 +64,13 @@ jobs:
             mkdir ~/infrastructure/mbot/
 
       - name: Copy docker-compose.yaml to remote server
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: |
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-add - <<< "${{ secrets.SSH_KEY }}"          
-          scp ./infra/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/infrastructure/mbot/docker-compose.yaml
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "./infra/docker-compose.yaml"
+          target: "~/infrastructure/mbot/docker-compose.yaml"
 
   deploy:
     name: Deploy image on production server
