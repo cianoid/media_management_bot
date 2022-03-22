@@ -4,8 +4,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from core.common import TELEGRAM_TOKEN, environment_check, log_init
-from handlers.admin import (register_callbacks_admin,
-                            register_handlers_admin)
+from handlers.admin import register_callbacks_admin, register_handlers_admin
 from handlers.common import register_handlers_common
 from handlers.suggestion import (register_callbacks_suggestion,
                                  register_handlers_suggestion)
