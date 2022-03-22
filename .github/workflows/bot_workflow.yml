@@ -25,7 +25,7 @@ jobs:
     - name: Test with flake8
       run: |
         cd ./app/
-        python -m flake8
+        python -m flake8 --config ../setup.cfg .
 
   send_message_after_tests:
     name: Send tg-message after tests-job
