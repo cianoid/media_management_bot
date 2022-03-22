@@ -61,7 +61,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            mkdir ~/infrastructure/mbot/
+            [ -d ~/infrastructure/mbot/ ] || mkdir ~/infrastructure/mbot/
 
       - name: Copy docker-compose.yaml to remote server
         uses: appleboy/scp-action@master
