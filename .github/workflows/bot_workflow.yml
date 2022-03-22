@@ -69,8 +69,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "./infra/docker-compose.yaml"
-          target: "~/infrastructure/mbot/docker-compose.yaml"
+          source: "./infra/docker-compose.yml"
+          target: "~/infrastructure/mbot/docker-compose.yml"
 
   deploy:
     name: Deploy image on production server
