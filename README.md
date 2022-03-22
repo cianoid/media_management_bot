@@ -23,3 +23,16 @@ pip install -r requirements.txt
 cd app
 python mbot.py
 ```
+
+#### Запуск в контейнере
+```
+cd app
+docker container rm mbot
+docker build --no-cache -t mbot .
+docker run --name mbot -d mbot 
+```
+
+#### Остановка контейнера
+```
+docker container stop mbot
+```
