@@ -70,7 +70,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "./infra/docker-compose.yml"
-          target: "~/infrastructure/mbot/docker-compose.yml"
+          target: "~/infrastructure/mbot/"
 
   deploy:
     name: Deploy image on production server
