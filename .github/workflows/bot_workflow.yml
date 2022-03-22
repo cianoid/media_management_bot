@@ -54,14 +54,22 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/mbot:build2022032201
 
+      - name: Create directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            mkdir ~/infrastructure/mbot/
+
       - name: Copy docker-compose.yaml to remote server
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_KEY }}"          
-          ssh ${{ secrets.SSH_HOST }} 'mkdir -p ~/infrastructure/mbot'
-          scp -o StrictHostKeyChecking=no infra/docker-compose.yaml  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/infrastructure/mbot/docker-compose.yaml
+          scp ./infra/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/infrastructure/mbot/docker-compose.yaml
 
   deploy:
     name: Deploy image on production server
@@ -70,9 +78,6 @@ jobs:
     if: always() && github.ref == 'refs/heads/main' && needs.build_bot_and_push_to_docker_hub.result == 'success'
 
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
-
       - name: executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
