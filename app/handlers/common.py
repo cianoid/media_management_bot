@@ -34,6 +34,21 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
 
 @log_user_action
 @only_private_messages
+async def cmd_me(message: types.Message):
+    user = message.from_user
+
+    text = _.MSG_ABOUT + '\n<b>ID</b>: {}'.format(user.id)
+
+    if user.username:
+        text += '\n<b>Username</b>: @{}'.format(user.username)
+    if user.full_name:
+        text += '\n<b>Имя</b>: {}'.format(user.full_name)
+
+    await message.reply(text)
+
+
+@log_user_action
+@only_private_messages
 async def cmd_start(message: types.Message):
     tg_user_id = message.from_user.id
     tg_username = message.from_user.username
@@ -45,9 +60,9 @@ async def cmd_start(message: types.Message):
 
 
 def register_handlers_common(dp: Dispatcher):
+    dp.register_message_handler(cmd_me, commands='me', state='*')
     dp.register_message_handler(
         cmd_start, commands=('start', 'help'), state='*')
-    dp.register_message_handler(
-        cmd_cancel, commands='cancel', state='*')
+    dp.register_message_handler(cmd_cancel, commands='cancel', state='*')
     dp.register_message_handler(
         cmd_cancel, Text(equals="отмена", ignore_case=True), state="*")
