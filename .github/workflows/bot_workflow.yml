@@ -71,7 +71,7 @@ jobs:
           privateKey: ${{ secrets.SSH_KEY }}
           recursive: false
           local: infra/docker-compose.yml
-          remote: ~/infrastructure/mbot/docker-compose.yml
+          remote: infrastructure/mbot/docker-compose.yml
 
   deploy:
     name: Deploy image on production server

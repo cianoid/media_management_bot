@@ -36,3 +36,40 @@ docker-compose up -d --build
 ```
 docker-compose stop
 ```
+
+
+## Автоматический запуск бота на сервере в Docker
+
+### Подготовить Secrets
+
+#### Учетные данные Docker
+
+```DOCKER_USERNAME``` - логин на Docker Hub
+
+```DOCKER_PASSWORD``` - пароль на Docker Hub
+
+#### Учетные данные сервера, где будет запускаться бот
+
+```SSH_HOST``` - адрес сервера, где будет жить бот
+
+```SSH_USER``` - имя юзера сервера SSH_HOST
+
+```SSH_KEY``` - приватный ключ юзера сервера SSH_HOST
+
+```
+ssh example.com ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub | cut -d ' ' -f2
+```
+
+#### Данные Telegram-бота для уведомлений о ходе bot_workflow
+
+```TELEGRAM_TO``` - ID юзера в Telegram, кому юот пришлет уведомление (юзер должен написать боту первым)
+
+```TELEGRAM_TOKEN``` - Токен бота, который пришлет уведомлений
+
+#### Данные, необходимые для работы бота
+
+```ENV_TELEGRAM_TOKEN``` - Токен рабочаего бота
+
+```ENV_ADMIN_IDS``` - ID админов 
+
+```ENV_LOG_LEVEL``` - уровень логировнаия. По умолчанию INFO
