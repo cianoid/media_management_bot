@@ -64,15 +64,14 @@ jobs:
             [ -d ~/infrastructure/mbot/ ] || mkdir ~/infrastructure/mbot/
 
       - name: Copy docker-compose.yaml to remote server
-        uses: nicklasfrahm/scp-action@main
+        uses: garygrossgarten/github-action-scp@release
         with:
-          direction: upload
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          fingerprint: ${{ secrets.SSH_FINGERPRINT }}
-          key: ${{ secrets.SSH_KEY }}
-          source: infra/docker-compose.yml
-          target: ~/infrastructure/mbot/
+          privateKey: ${{ secrets.SSH_KEY }}
+          recursive: false
+          local: infra/docker-compose.yml
+          remote: ~/infrastructure/mbot/docker-compose.yml
 
   deploy:
     name: Deploy image on production server
