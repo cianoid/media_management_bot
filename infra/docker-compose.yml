@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   mbot:
-    build: ../app/
+    image: cianoid/mbot:build2022032201
     restart: always
     volumes:
       - logs_value:/app/logs/
       - sqlite_value:/app/db/
     env_file:
-      - ../app/.env
+      - ./.env
 
 volumes:
   sqlite_value:
