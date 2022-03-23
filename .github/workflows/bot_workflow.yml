@@ -69,6 +69,7 @@ jobs:
           direction: upload
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
+          fingerprint: ${{ secrets.SSH_FINGERPRINT }}
           key: ${{ secrets.SSH_KEY }}
           source: infra/docker-compose.yml
           target: ~/infrastructure/mbot/
