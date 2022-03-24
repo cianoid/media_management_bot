@@ -56,9 +56,6 @@ docker-compose stop
 
 ```SSH_KEY``` - приватный ключ юзера сервера SSH_HOST
 
-```
-ssh example.com ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub | cut -d ' ' -f2
-```
 
 #### Данные Telegram-бота для уведомлений о ходе bot_workflow
 
