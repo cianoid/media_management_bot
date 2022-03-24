@@ -55,6 +55,10 @@ def is_admin(tg_user_id):
     return tg_user_id in ADMINS
 
 
+def is_moderator(user):
+    return user.is_moderator or is_admin(user.tg_user_id)
+
+
 def log_user_action(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):

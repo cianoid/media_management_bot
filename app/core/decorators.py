@@ -1,6 +1,7 @@
 from functools import wraps
 
 from core import textlib as _
+from core.common import is_moderator as is_moderator_func
 
 
 def is_moderator(db_user):
@@ -8,9 +9,12 @@ def is_moderator(db_user):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             message = args[0]
-            tg_user_id = message['from']['id']
+            tg_user = message['from']
 
-            if db_user.get(tg_user_id=tg_user_id).is_moderator:
+            user = db_user.get_or_create(
+                tg_user_id=tg_user['id'], tg_username=tg_user['username'])
+
+            if is_moderator_func(user):
                 return await func(*args, **kwargs)
 
             return await message.reply(_.MSG_NO_RIGHTS)

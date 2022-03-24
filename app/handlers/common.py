@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from core import textlib as _
-from core.common import is_admin, log_user_action
+from core.common import is_admin, is_moderator, log_user_action
 from core.decorators import only_private_messages
 from core.models import DBUser
 
@@ -17,7 +17,7 @@ def user_start_message(from_user):
     user = DBUser().get_or_create(
         tg_user_id=from_user.id, tg_username=from_user.username)
 
-    if user.is_moderator:
+    if is_moderator(user):
         text += _.MSG_MODERATOR_COMMANDS
 
     text += _.MSG_USER_COMMANDS

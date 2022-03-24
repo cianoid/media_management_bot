@@ -4,7 +4,7 @@ from aiogram import Dispatcher, types
 from aiogram.utils.callback_data import CallbackData
 
 from core import textlib as _
-from core.common import log_user_action, logger
+from core.common import is_moderator, log_user_action, logger
 from core.decorators import only_private_messages
 from core.models import DBUser
 
@@ -58,7 +58,7 @@ async def cmd_moderator_add(message: types.Message):
         await message.reply(_.MSG_USER_NOT_IN_DB)
         return
 
-    if user.is_moderator:
+    if is_moderator(user):
         logger.info(_.MSG_USER_ALREADY_MODERATOR.format(user))
         await message.answer(_.MSG_USER_ALREADY_MODERATOR.format(user))
         return
