@@ -51,8 +51,8 @@ BTN_REJECT = 'Отклонить'
 MSG_START = 'Некое приветственное сообщение\n\n'
 MSG_ADMIN_COMMANDS = (
     'Команды администратора:\n'
-    '/moderator_list - список модераторов\n'
-    '/moderator_add <b>id</b> - добавить модератора\n\n')
+    '/moderator_list - список назначенных модераторов\n'
+    '/moderator_add <b>id|username</b> - добавить модератора\n\n')
 
 MSG_MODERATOR_COMMANDS = (
     'Команды модератора:\n'
@@ -64,7 +64,7 @@ MSG_USER_COMMANDS = (
     '/help - отображает данное сообщение\n'
     '/me - отображает информацию о вас\n\n')
 MSG_NO_MODERATORS = 'К сожалению, у вас нет модераторов'
-MSG_MODERATOR_LIST = 'Ваши модераторы:\n'
+MSG_MODERATOR_LIST = 'Назначенные модераторы:\n'
 
 MSG_NO_RIGHTS = 'У вас нет прав для доступа к этой функции'
 MSG_ONLY_PRIVATE = 'Я общаюсь только в личке'
