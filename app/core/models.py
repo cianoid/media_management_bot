@@ -93,6 +93,13 @@ class DBUser(__DBLayer):
 
         return session.scalar(stmt)
 
+    def get_user_by_name(self, tg_username):
+        session = Session(self.engine)
+        stmt = select(User).where(
+            func.lower(User.tg_username) == tg_username.lower())
+
+        return session.scalar(stmt)
+
     def create(self, tg_user_id, tg_username):
         with Session(self.engine) as session:
             session.add(User(tg_user_id=tg_user_id, tg_username=tg_username))
@@ -101,12 +108,17 @@ class DBUser(__DBLayer):
     def get_or_create(self, tg_user_id, tg_username):
         obj = self.get(tg_user_id=tg_user_id)
 
-        if obj:
-            return obj
+        if not obj:
+            self.create(tg_user_id=tg_user_id, tg_username=tg_username)
 
-        self.create(tg_user_id=tg_user_id, tg_username=tg_username)
+            return self.get(tg_user_id=tg_user_id)
 
-        return self.get(tg_user_id=tg_user_id)
+        if obj.tg_username != tg_username:
+            self.update(
+                tg_user_id=tg_user_id,
+                update_data={'tg_username': tg_username})
+
+        return obj
 
     def get_user_id(self, tg_user_id):
         obj = self.get(tg_user_id=tg_user_id)

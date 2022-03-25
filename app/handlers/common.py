@@ -42,7 +42,7 @@ async def cmd_me(message: types.Message):
     if user.username:
         text += '\n<b>Username</b>: @{}'.format(user.username)
     if user.full_name:
-        text += '\n<b>Имя</b>: {}'.format(user.full_name)
+        text += '\n<b>Name</b>: {}'.format(user.full_name)
 
     await message.reply(text)
 

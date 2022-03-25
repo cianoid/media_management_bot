@@ -46,12 +46,16 @@ async def cmd_moderator_add(message: types.Message):
 
     try:
         tg_user_id = data[1]
+        user = DBUser().get(tg_user_id=tg_user_id)
+
+        if not user:
+            uname = data[1].replace('@', '')
+            user = DBUser().get_user_by_name(tg_username=uname)
+            tg_user_id = user.tg_user_id
     except IndexError:
         logger.warning(_.MSG_NO_ID)
         await message.reply(_.MSG_NO_ID)
         return
-
-    user = DBUser().get(tg_user_id=tg_user_id)
 
     if not user:
         logger.info(_.MSG_USER_NOT_IN_DB)
