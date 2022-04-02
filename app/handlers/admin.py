@@ -5,7 +5,7 @@ from aiogram.utils.callback_data import CallbackData
 
 from core import textlib as _
 from core.common import is_moderator, log_user_action, logger
-from core.decorators import only_private_messages, is_admin
+from core.decorators import is_admin, only_private_messages
 from core.models import DBUser
 
 cb_moderator_delete = CallbackData('moderator_delete', 'tg_user_id')

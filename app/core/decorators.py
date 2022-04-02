@@ -1,8 +1,8 @@
 from functools import wraps
 
 from core import textlib as _
-from core.common import is_moderator as is_moderator_func
 from core.common import is_admin as is_admin_func
+from core.common import is_moderator as is_moderator_func
 
 
 def is_moderator(db_user):

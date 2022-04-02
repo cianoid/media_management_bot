@@ -52,7 +52,7 @@ jobs:
         with:
           context: ./app/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/mbot:build20220324
+          tags: ${{ secrets.DOCKER_USERNAME }}/mbot:build20220401
 
       - name: Create directory
         uses: appleboy/ssh-action@master
