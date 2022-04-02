@@ -8,9 +8,9 @@
 Для формирования списка из переменных *ADMIN_IDS* параметры указывать через пробел 
 
 ```
-ENV_TELEGRAM_TOKEN=
-ENV_ADMIN_IDS=
-ENV_LOG_LEVEL=INFO
+TELEGRAM_TOKEN=
+ADMIN_IDS=
+LOG_LEVEL=INFO
 ```
 
 
