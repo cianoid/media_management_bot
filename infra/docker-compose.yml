@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mbot:
-    image: cianoid/mbot:build20220325
+    image: cianoid/mbot:latest
     restart: always
     volumes:
       - logs_value:/app/logs/
