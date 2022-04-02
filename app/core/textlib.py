@@ -48,21 +48,35 @@ MSG_USER_SUGGEST = 'Пользователь @{} (user_id={}) предложил
 BTN_APPROVE = 'Принять'
 BTN_REJECT = 'Отклонить'
 
+CMD_NAME_MODERATOR_LIST = 'moderator_add'
+CMD_DESC_MODERATOR_LIST = (
+    'добавить модератора по <b>id</b> или <b>username</b>')
+CMD_NAME_MODERATOR_ADD = 'moderator_list'
+CMD_DESC_MODERATOR_ADD = 'список назначенных модераторов'
+CMD_NAME_SUGGESTION_LIST = 'suggestion_list'
+CMD_DESC_SUGGESTION_LIST = 'отобразить список непроверенных материалов'
+CMD_NAME_SUGGESTION = 'suggestion'
+CMD_DESC_SUGGESTION = 'предложить материал'
+CMD_NAME_HELP = 'help'
+CMD_DESC_HELP = 'отображает данное сообщение'
+CMD_NAME_ME = 'me'
+CMD_DESC_ME = 'отображает информацию о вас'
+
 MSG_START = 'Некое приветственное сообщение\n\n'
 MSG_ADMIN_COMMANDS = (
     'Команды администратора:\n'
-    '/moderator_list - список назначенных модераторов\n'
-    '/moderator_add <b>id|username</b> - добавить модератора\n\n')
+    f'/{CMD_NAME_MODERATOR_LIST} - {CMD_DESC_MODERATOR_LIST}\n'
+    f'/{CMD_NAME_MODERATOR_ADD} - {CMD_DESC_MODERATOR_ADD}\n\n')
 
 MSG_MODERATOR_COMMANDS = (
     'Команды модератора:\n'
-    '/suggestion_list - отобразить список непроверенных материалов\n\n')
+    f'/{CMD_NAME_SUGGESTION_LIST} - {CMD_DESC_SUGGESTION_LIST}\n\n')
 
 MSG_USER_COMMANDS = (
     'Доступные команды:\n'
-    '/suggestion - предложить материал\n'
-    '/help - отображает данное сообщение\n'
-    '/me - отображает информацию о вас\n\n')
+    f'/{CMD_NAME_SUGGESTION} - {CMD_DESC_SUGGESTION}\n'
+    f'/{CMD_NAME_HELP} - {CMD_DESC_HELP}\n'
+    f'/{CMD_NAME_ME} - {CMD_DESC_ME}\n\n')
 MSG_NO_MODERATORS = 'К сожалению, у вас нет модераторов'
 MSG_MODERATOR_LIST = 'Назначенные модераторы:\n'
 
