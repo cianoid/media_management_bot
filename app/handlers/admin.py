@@ -3,6 +3,7 @@ import re
 from aiogram import Dispatcher, types
 from aiogram.utils.callback_data import CallbackData
 
+# from core import commands
 from core import textlib as _
 from core.common import is_moderator, log_user_action, logger
 from core.decorators import only_private_messages
@@ -73,9 +74,14 @@ async def cmd_moderator_add(message: types.Message):
 
     if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
         logger.info(_.MSG_USER_NOW_MODERATOR.format(user))
+
+        # @TODO
+        # await message.bot.set_my_commands(
+        #     commands.USER_COMMANDS + commands.MODERATOR_COMMANDS)
         await message.reply(_.MSG_USER_NOW_MODERATOR.format(user))
         await message.bot.send_message(
             user.tg_user_id, text=_.MSG_UR_MODERATOR)
+
         return
 
 
@@ -103,6 +109,9 @@ async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
 
     if DBUser().update(tg_user_id=tg_user_id, update_data=update_data):
         logger.info(_.MSG_USER_NOW_NOT_MODERATOR.format(user))
+
+        # @TODO
+        # await call.message.bot.set_my_commands(commands.USER_COMMANDS)
         await call.message.reply(_.MSG_USER_NOW_NOT_MODERATOR.format(user))
         await call.bot.send_message(
             user.tg_user_id, text=_.MSG_UR_NOT_MODERATOR)

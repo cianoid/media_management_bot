@@ -55,6 +55,7 @@ def is_admin(tg_user_id):
     return tg_user_id in ADMINS
 
 
+# @TODO проверка прав должна быть идентична
 def is_moderator(user):
     return user.is_moderator or is_admin(user.tg_user_id)
 

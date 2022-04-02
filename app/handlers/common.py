@@ -2,6 +2,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
+# from core import commands
 from core import textlib as _
 from core.common import is_admin, is_moderator, log_user_action
 from core.decorators import only_private_messages
@@ -54,7 +55,25 @@ async def cmd_start(message: types.Message):
     tg_username = message.from_user.username
     start_message = user_start_message(message.from_user)
 
-    DBUser().get_or_create(tg_user_id=tg_user_id, tg_username=tg_username)
+    user = DBUser().get_or_create(
+        tg_user_id=tg_user_id, tg_username=tg_username)
+
+    # @TODO
+    # comms = commands.USER_COMMANDS
+    # if is_admin(tg_user_id):
+    #     comms += commands.MODERATOR_COMMANDS + commands.ADMIN_COMMANDS
+    # elif is_moderator(user):
+    #     comms += commands.MODERATOR_COMMANDS
+    #
+    # coms = await message.bot.get_my_commands()
+    # for com in coms:
+    #     print(com)
+    #
+    # await message.bot.set_my_commands(comms)
+    #
+    # coms = await message.bot.get_my_commands()
+    # for com in coms:
+    #     print(com)
 
     await message.reply(start_message, reply_markup=None)
 
