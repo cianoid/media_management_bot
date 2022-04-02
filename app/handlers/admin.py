@@ -5,12 +5,13 @@ from aiogram.utils.callback_data import CallbackData
 
 from core import textlib as _
 from core.common import is_moderator, log_user_action, logger
-from core.decorators import only_private_messages
+from core.decorators import only_private_messages, is_admin
 from core.models import DBUser
 
 cb_moderator_delete = CallbackData('moderator_delete', 'tg_user_id')
 
 
+@is_admin(db_user=DBUser())
 @log_user_action
 @only_private_messages
 async def cmd_moderator_list(message: types.Message):
@@ -39,6 +40,7 @@ async def cmd_moderator_list(message: types.Message):
     await message.reply(text, reply_markup=keyboard)
 
 
+@is_admin(db_user=DBUser())
 @log_user_action
 @only_private_messages
 async def cmd_moderator_add(message: types.Message):
@@ -75,6 +77,7 @@ async def cmd_moderator_add(message: types.Message):
         return
 
 
+@is_admin(db_user=DBUser())
 @log_user_action
 @only_private_messages
 async def moderator_delete(call: types.CallbackQuery, callback_data: dict):
